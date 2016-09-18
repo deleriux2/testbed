@@ -1,0 +1,44 @@
+# QUEUE        DIRECTION   COUNTRY         VERDICT
+## The filter file.
+## QUEUE [start_group_number]:[end_group_number]
+##  Defines the group for which packets will be analyzed for. These should already
+##  be setup in IPtables
+##
+##  DIRECTION (SRC|DST)
+##    Defines whether the check should be done against the source or destination address.
+##    DST for outgoing chains, SRC for incoming chains.
+##
+##  COUNTRY <ccode>,<ccode>,<ccode>,DEFAULT
+##    A comma-separated list of country codes, or DEFAULT which matches
+##    unknown IPs that are unknown to the GeoIP database being used.
+##
+##  VERDICT ACCEPT|DROP
+##    The verdict assigned to this match. Matching countries either drop, or allow.
+##    Note, when ALLOW is used the filter becomes a whitelist which will drop
+##    non-matching countries from the list. When the verdict is DROP, then
+##    the filter acts as a blacklist and non-matches countries are allowed.
+##
+## Its generally a good idea to put the necessary iptables rules near the bottom of a decision making chain.
+## Sending the program a USR1 signal will reload the rules here and the GeoIP database.
+
+## Example 1.
+## Check source of incoming packets destined for http and https for countries russia, china or unknown and drop
+## When the program is not running, we permit all traffic.
+## iptables: 
+##   iptables -A INPUT -m conntrack --ctstate NEW -m tcp -p tcp \
+##    --dport 80  -j NFQUEUE --queue-bypass --queue-balance 1000:1007
+##   iptables -A INPUT -m conntrack --ctstate NEW -m tcp -p tcp \
+##    --dport 443 -j NFQUEUE --queue-bypass --queue-balance 1000:1007
+## 1000:1007      SRC         CN,RU,DEFAULT           DROP
+
+## Example 2.
+## Check destination of outgoing packet for SSH traffic and drop for all except those destined for
+## France or Great Britain.
+## iptables: 
+##   iptables -A INPUT -m conntrack --ctstate NEW -m tcp -p tcp \
+##    --dport 22 -j NFQUEUE --queue-bypass --queue-balance 1008:1015
+## 1008:1015      DST         GB,FR                   ACCEPT
+
+####### nfcountry filter file begin #######
+# QUEUE        DIRECTION   COUNTRY         VERDICT
+1000:1007      SRC         CH,RU,FR           DROP

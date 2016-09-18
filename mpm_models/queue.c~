@@ -1,0 +1,188 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <assert.h>
+#include <errno.h>
+
+struct entry {
+  struct entry *next;
+  struct entry *last;
+  void *data;
+};
+
+struct queue {
+  pthread_mutex_t lock;
+  pthread_cond_t cond;
+  pthread_cond_t empty;
+  int workers;
+  volatile int len;
+  volatile int inq;
+  int limit;
+  struct entry *head;
+  struct entry *tail;
+};
+
+
+/* Initialize the queue */
+struct queue * queue_init(
+    int limit,
+    int workers)
+{
+  struct queue *q = NULL;
+  q = malloc(sizeof(struct queue));
+  if (!q)
+    goto fail;
+
+  if (limit < 0 || workers < 0) 
+    return NULL;
+
+  if (pthread_mutex_init(&q->lock, NULL))
+    goto fail;
+  if (pthread_cond_init(&q->cond, NULL))
+    goto fail;
+  if (pthread_cond_init(&q->empty, NULL))
+    goto fail;
+
+  q->limit = limit;
+  q->workers = workers;
+  q->len = 0;
+  q->inq = 0;
+  q->head = NULL;
+  q->tail = NULL;
+  return q;
+
+fail:
+  if (q) {
+    pthread_mutex_destroy(&q->lock);
+    pthread_cond_destroy(&q->cond);
+    free(q);
+  }
+  return NULL;
+}
+
+
+/* Add an entry to the queues head */
+void * queue_put(
+    struct queue *qh,
+    void *data)
+{
+  printf("put\n");
+  struct entry *e;
+  assert(qh);
+
+  e = malloc(sizeof(struct entry));
+  if (!e)
+    goto fail;
+
+  e->data = data;
+
+  pthread_mutex_lock(&qh->lock);
+  qh->inq++;
+
+  if (qh->len > qh->limit && qh->limit) {
+    errno = E2BIG;
+    goto fail;
+  }
+
+  if (qh->head) {
+    qh->head->last = e;
+    e->next = qh->head;
+    e->last = NULL;
+    qh->head = e;
+  }
+  else {
+    e->next = NULL;
+    e->last = NULL;
+    qh->head = e;
+    qh->tail = e;
+  }
+  qh->len++;
+  qh->inq--;
+
+  pthread_mutex_unlock(&qh->lock);
+  pthread_cond_broadcast(&qh->cond);
+ 
+  return data;
+
+fail:
+  qh->inq--;
+  pthread_mutex_unlock(&qh->lock);
+  if (e)
+    free(e);
+  return NULL;
+}
+
+/* Retrieve an entry from the queue */
+void * queue_get(
+    struct queue *qh)
+{
+  printf("get\n");
+  struct entry *e, *t;
+  void *data;
+
+  assert(qh);
+
+  pthread_mutex_lock(&qh->lock);
+  qh->inq++;
+  while (!qh->tail) {
+    pthread_cond_signal(&qh->empty);
+    pthread_cond_wait(&qh->cond, &qh->lock);
+  }
+
+  if (qh->head == qh->tail) {
+    qh->head = NULL;
+    e = qh->tail;
+    qh->tail = NULL;
+  }
+  else {
+    e = qh->tail;
+    e->last->next = NULL;
+    qh->tail = e->last;
+  }
+
+  qh->len--;
+  qh->inq--;
+  pthread_mutex_unlock(&qh->lock);
+  data = e->data;
+  free(e);
+  return (data);
+
+fail:
+  qh->inq--;
+  pthread_mutex_unlock(&qh->lock);
+  return NULL;
+}
+
+/* Wait until the queue is empty. This should be only called by the 
+ * producer thread. */
+void queue_wait(
+    struct queue * qh)
+{
+  pthread_mutex_lock(&qh->lock);
+
+  while (qh->tail || qh->inq < qh->workers) {
+    pthread_cond_wait(&qh->empty, &qh->lock);
+  }
+  pthread_mutex_unlock(&qh->lock);
+}
+
+
+/* Destroy the queue */
+void queue_destroy(
+    struct queue *q)
+{
+  struct entry *e, *n;
+
+  if (!q)
+    return;
+
+  pthread_mutex_destroy(&q->lock);
+  pthread_cond_destroy(&q->cond);
+  pthread_cond_destroy(&q->empty);
+
+  for (e = q->head; e != NULL; e = n) {
+    n = e->next;
+    free(e);
+  }
+  return;
+}

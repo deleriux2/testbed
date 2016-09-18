@@ -1,0 +1,19 @@
+-- Minor Items
+- Btree seems to store some dupes. Work out the case which causes this and correct.
+- Btree appears to produce some empty external nodes. Determine the cause.
+
+-- Major Items
+- Cleanup BBDB API.
+  - Make a bunch of needed functions static inline.
+  - Get rid of the enum verdict from the btree. Maybe keep for bbdb.
+  - Determine what static functions we never used and remove them.
+  - Get rid of btree_internal and replace it with &ex->keys[x].
+  - Reorder the source into something tha looks neater.
+  - Add function prototypes to static functions.
+  - Proper spacing between functions.
+- Make into a library.
+  - Figure out what it takes to make the project work with autoconf/automake.
+
+-- ONTO THE AGENT AND DISTRIBUTION SERVER --
+- Think about how statistics and logs will be managed.
+- License checking stuff, when we do it and how.

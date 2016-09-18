@@ -1,0 +1,147 @@
+#include "common.h"
+#include "ndmp_common.h"
+#include "mover.h"
+
+#include <signal.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <sys/signalfd.h>
+#include <sys/mman.h>
+
+static bool mover_read(mover_state *sess);
+
+mover_state * mover_create(
+		char *host,
+		char *port)
+{
+	assert(host);
+	assert(port);
+
+	int rc;
+	int yes = 1;
+	sigset_t ss;
+	pid_t pid;
+
+	struct addrinfo *ai, hints;
+	memset(&hints, 0, sizeof(hints));
+
+	/* Make mover_state a shared mapping and return */
+	mover_state *state = NULL;
+	state = mmap(NULL, sizeof(*state), PROT_READ|PROT_WRITE,
+			MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	ON_FALSE(fail, state != NULL);
+
+	/* Spawn child process */
+	ON_FALSE(fail, (pid = fork()) > -1);
+	if (pid) 
+		goto parent;
+	else
+		goto child;
+	/* Per process work */
+
+child:
+	/* Create listening socket */
+	hints.ai_flags = AI_PASSIVE;
+	rc = getaddrinfo(host, port, &hints, &ai);
+
+	ON_FALSE(fail, rc == 0);
+
+	state->fd = socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
+	ON_FALSE(fail, state->fd > -1);
+	ON_FALSE(fail, setsockopt(state->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) > -1);
+	ON_FALSE(fail, bind(state->fd, ai->ai_addr, ai->ai_addrlen) > -1);
+	ON_FALSE(fail, listen(state->fd, 1) > -1);
+
+	freeaddrinfo(ai);
+
+	mover_read(state);
+	exit(0);
+
+
+parent:
+	/* Setup state */
+	state->finished = false;
+	state->started = false;
+	state->pid = pid;
+
+	/* Setup signalling */
+	signal(SIGCHLD, SIG_IGN);
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGCHLD);
+	ON_FALSE(fail, sigprocmask(SIG_BLOCK, &ss, NULL) > -1);	
+	state->signalfd = signalfd(-1, &ss, SFD_CLOEXEC);
+	return state;
+	
+fail:
+	if (state) {
+		shutdown(state->fd, SHUT_RDWR);
+		close(state->fd);
+		munmap(state, sizeof(*state));
+		state = NULL;
+	}
+	exit(0);
+	return state;
+}
+
+
+void mover_destroy(
+		mover_state *state)
+{
+	if (!state) return;
+	assert(getpid() != state->pid);
+
+	kill(state->pid, SIGTERM);
+	waitpid(state->pid, 0);
+	if (state->signalfd > -1)
+		close(state->signalfd);
+	munmap(state, sizeof(*state));
+	return;	
+}
+
+
+bool mover_read(
+		mover_state *state)
+{
+	assert(state);
+
+	char buf[8192];
+	memset(buf, 0, 8192);
+	int rc = -1;
+	int clifd = -1;
+
+	printf("state fd: %d\n", state->fd);
+	ON_FALSE(fail, (clifd = accept4(state->fd, NULL, 0, SOCK_CLOEXEC)) >= 0);
+	printf("Accepted\n");
+
+	while (!state->finished) {
+		ON_FALSE(fail, (rc = read(clifd, buf, 8192)) > 0);
+		printf("Read %d bytes on %d\n", rc, clifd);
+	}
+	close(clifd);
+
+	exit(0);
+
+fail:
+	close(clifd);
+	_LOG(ERROR, "Failed to read data: %s\n", strerror(errno));
+	exit(1);
+}
+
+
+bool mover_signal(
+		ndmp_session *sess)
+{
+	assert(sess);
+
+	mover_state *state = sess->data;
+	assert(state);
+
+	struct signalfd_siginfo info;
+	memset(&info, 0, sizeof(info));
+	ON_FALSE(fail, read(state->signalfd, &info, sizeof(info)) == sizeof(info));
+	printf("Mes got a signal sah!\n");
+
+	return true;
+fail:
+	return false;
+}

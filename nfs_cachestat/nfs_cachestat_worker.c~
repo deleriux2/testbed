@@ -1,0 +1,576 @@
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sysexits.h>
+#include <getopt.h>
+#include <limits.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <signal.h>
+#include <sys/uio.h>
+#include <sys/mman.h>
+#include <time.h>
+
+#define SOCKPATH "/var/tmp/nfs_cachestat.sock"
+#define ROUNDS_PER_ITERATION 3
+#define PATHSIZE 67108864LLU
+#define RPI_MIN 1
+#define RPI_MAX 512
+#define BLOCKSIZE 4096
+#define FILESIZE_MIN 4096LLU
+#define FILESIZE_MAX 1073741824LLU
+
+/* Commands we accept */
+#define CTRL_CONFIG       0x000LU
+#define CTRL_READ         0x001LU
+#define CTRL_WRITE        0x002LU
+#define CTRL_TRUNCATE     0x003LU
+#define CTRL_STAT         0x004LU
+#define CTRL_MAP          0x005LU
+#define CTRL_SEEK         0x006LU
+
+/* Results we send back */
+#define CTRL_CONFIG_DONE  0X100LU
+#define CTRL_DONE         0x101LU
+#define CTRL_ERROR        0x102LU
+#define CTRL_READY        0x103LU
+
+#define UNIX_PATH_MAX 108
+#define RPCFILE           "/proc/net/rpc/nfs"
+
+int testfd = -1;
+int sockfd = -1;
+int clientfd = -1;
+
+int madesock = 0;
+int madefile = 0;
+void *map = NULL;
+
+struct nfsstat {
+  uint64_t calls;
+  uint64_t null;
+  uint64_t getattr;
+  uint64_t setattr;
+  uint64_t lookup;
+  uint64_t access;
+  uint64_t readlink;
+  uint64_t read;
+  uint64_t write;
+  uint64_t create;
+  uint64_t mkdir;
+  uint64_t symlink;
+  uint64_t mknod;
+  uint64_t remove;
+  uint64_t rmdir;
+  uint64_t rename;
+  uint64_t link;
+  uint64_t readdir;
+  uint64_t readdirplus;
+  uint64_t fsstat;
+  uint64_t fsinfo;
+  uint64_t pathconf;
+  uint64_t commit;
+};
+
+static struct {
+  int rounds_per_iteration;
+  char path[PATH_MAX];
+  char sockpath[UNIX_PATH_MAX];
+  ssize_t filesize;
+} config;
+
+static void print_help(
+    void)
+{
+  fprintf(stderr, "The NFS stat cache worker.\n"
+                  "    --rpi      -r        The number of rounds per iteration to perform\n"
+                  "    --socket   -S        The path to the socket file to create\n" 
+                  "    --size     -s        The size of the file to do work on\n");
+}
+
+
+/* Just a cleanup routine */
+static void cleanup(
+    void)
+{
+  if (madesock) {
+    if (clientfd > -1)
+      close(clientfd);
+    unlink(config.sockpath);
+  }
+  if (madefile)
+    unlink(config.path);
+}
+
+void sigcleanup(
+    int sig)
+{
+  cleanup();
+  exit(0);
+}
+
+int timediff(
+    struct timespec *diff,
+    int (*func)(int fd),
+    int fd)
+{
+  unsigned long long valdiff = 0, val = 0, val2 = 0;
+  struct timespec then, now;
+  int sz;
+  int rc;
+
+  if (clock_gettime(CLOCK_REALTIME, &then) < 0)
+    err(EX_OSERR, "Cannot get then time");
+
+  rc = func(fd);
+
+  if (clock_gettime(CLOCK_REALTIME, &now) < 0)
+    err(EX_OSERR, "Can not get now time");
+
+  val = (now.tv_sec * 1000000000LLU) + now.tv_nsec;
+  val2 = (then.tv_sec * 1000000000LLU) + then.tv_nsec;
+  valdiff = val - val2;
+
+  diff->tv_sec = (valdiff / 1000000000LLU);
+  diff->tv_nsec = (valdiff % 1000000000LLU);
+
+  return rc;
+}
+
+
+int get_nfs_statistics(
+    struct nfsstat *stat)
+{
+  FILE *sfile = fopen(RPCFILE, "r");
+  char buf[4096];
+  uint64_t nil;
+
+  memset(stat, 0, sizeof(struct nfsstat));
+  if (sfile == NULL) {
+    warn("Cannot get stats, returning zeroes");
+    return -1;
+  }
+
+  while (!feof(sfile)) {
+    if (fgets(buf, 4096, sfile) == NULL)
+      break;
+
+    if (sscanf(buf, "rpc %llu", &stat->calls) == 1)
+      continue;
+    if (sscanf(buf, "proc3 %llu %llu %llu %llu %llu %llu %llu %llu "
+                      "%llu %llu %llu %llu %llu %llu %llu %llu %llu %llu "
+                      "%llu %llu %llu %llu %llu",
+              &nil, &stat->null, &stat->getattr, &stat->setattr, &stat->lookup, 
+              &stat->access, &stat->readlink, &stat->read, &stat->write, 
+              &stat->create, &stat->mkdir, &stat->symlink, &stat->mknod, 
+              &stat->remove, &stat->rmdir, &stat->rename, &stat->link, 
+              &stat->readdir, &stat->readdirplus, &stat->fsstat, &stat->fsinfo, 
+              &stat->pathconf, &stat->commit) == 23)
+      return 0;
+  }
+  return -1;
+}
+
+inline struct nfsstat nfs_diff_stats(
+    struct nfsstat n,
+    struct nfsstat t)
+{
+  struct nfsstat d;
+  d.calls = t.calls - n.calls;
+  d.null = t.null - n.null;
+  d.getattr = t.getattr - n.getattr;
+  d.setattr = t.setattr - n.setattr;
+  d.lookup = t.lookup - n.lookup;
+  d.access = t.access - n.access;
+  d.readlink = t.readlink - n.readlink;
+  d.read = t.read - n.read;
+  d.write = t.write - n.write;
+  d.create = t.create - n.create;
+  d.mkdir = t.mkdir - n.mkdir;
+  d.symlink = t.symlink - n.symlink;
+  d.mknod = t.mknod - n.mknod;
+  d.remove = t.remove - n.remove;
+  d.rmdir = t.rmdir - n.rmdir;
+  d.rename = t.rename - n.rename;
+  d.link = t.link - n.link;
+  d.readdir = t.readdir - n.readdir;
+  d.readdirplus = t.readdirplus - n.readdirplus;
+  d.fsstat = t.fsstat - n.fsstat;
+  d.fsinfo = t.fsinfo - n.fsinfo;
+  d.pathconf = t.pathconf - n.pathconf;
+  d.commit = t.commit - n.commit;
+  return d;
+}
+
+static void parse_config(
+    int argc,
+    char **argv)
+{
+  int tmp;
+  char c;
+  int error = 0;
+  char pathcomp[2][PATH_MAX];
+
+  /* Configure config defaults */
+  config.filesize = PATHSIZE;
+  config.rounds_per_iteration = ROUNDS_PER_ITERATION;
+  strncpy(config.sockpath, SOCKPATH, UNIX_PATH_MAX);
+
+  struct option opts[] = {
+    { "help", no_argument, 0, 'h' },
+    { "rpi", required_argument, 0, 'r' },
+    { "socket", required_argument, 0, 'S' },
+    { "size", required_argument, 0, 's' },
+    { 0, 0, 0 }
+  };
+
+  while ((c = getopt_long(argc, argv, "hr:S:s:", opts, &optind)) != -1) {
+    switch(c) {
+      case 'r':
+        tmp = atoi(optarg);
+        if (tmp < RPI_MIN || tmp > RPI_MAX)
+          errx(EX_SOFTWARE, "Rounds per iteraction must be between %d and %d", RPI_MIN, RPI_MAX);
+        config.rounds_per_iteration = tmp;
+       break;
+
+       case 'S':
+         strncpy(config.sockpath, optarg, UNIX_PATH_MAX);
+       break;
+
+       case 's':
+         tmp = strtoul(optarg, NULL, 10);
+         if (tmp < FILESIZE_MIN || tmp > FILESIZE_MAX)
+           errx(EX_SOFTWARE, "The files filesize must be between %d and %d", 
+                                               FILESIZE_MIN, FILESIZE_MAX);        
+         config.filesize = tmp;
+       break;
+
+       case 'h':
+       case '?':
+         print_help();
+         exit(EX_SOFTWARE);
+       break;
+
+       default:
+         abort();
+    }
+  }
+
+  /* Mandatory arguments are next */
+  if (optind >= argc) {
+    errx(EX_SOFTWARE, "Must supply a path to perform work against");
+  }
+  strncpy(config.path, argv[optind++], PATH_MAX);
+
+  return;
+}
+
+int send_error(
+    int clientfd)
+{
+  uint32_t cmdtype = CTRL_ERROR;
+  uint32_t errcode = errno;
+  struct iovec vec[2];
+
+  vec[0].iov_base = &cmdtype;
+  vec[0].iov_len = sizeof(cmdtype);
+  vec[1].iov_base = &errcode;
+  vec[1].iov_len = sizeof(errcode);
+
+  return writev(clientfd, vec, 2);
+}
+
+int send_config(
+    int clientfd)
+{
+  uint32_t cmdtype = CTRL_CONFIG_DONE;
+  struct iovec vec[5];
+  vec[0].iov_base = &cmdtype;
+  vec[0].iov_len = sizeof(cmdtype);
+  vec[1].iov_base = &config.rounds_per_iteration;
+  vec[1].iov_len = sizeof(config.rounds_per_iteration);
+  vec[2].iov_base = config.path;
+  /* not ideal doing this with strings, but easy */
+  vec[2].iov_len = sizeof(config.path);
+  vec[3].iov_base = config.sockpath;
+  vec[3].iov_len = sizeof(config.sockpath);
+  vec[4].iov_base = &config.filesize;
+  vec[4].iov_len = sizeof(config.filesize);
+
+  return writev(clientfd, vec, 5);
+}
+
+int perform_map(
+    int fd)
+{
+  if (map)
+    munmap(map, config.filesize);
+  map = mmap(NULL, config.filesize, PROT_READ, MAP_SHARED, fd, 0);
+  if (mmap == MAP_FAILED)
+    return -1;
+  return 0;
+}
+
+
+int perform_stat(
+    int fd)
+{
+  struct stat st;
+  int rc;
+
+  rc = stat(config.path, &st);
+  return rc;
+}
+
+int perform_read(
+    int fd)
+{
+  char buf[BLOCKSIZE];
+  int i;
+  int total = 0;
+  int rc;
+
+  if (lseek(fd, 0, SEEK_SET) < 0)
+    return -errno;
+  while (1) {
+    rc = read(fd, buf, BLOCKSIZE);
+    if (rc < 0)
+      return -errno;
+    total += rc;
+    if (rc == 0)
+      break;
+  }
+  if (lseek(fd, 0, SEEK_SET) < 0)
+    return -errno;
+  return rc;
+}
+
+
+int perform_write(
+    int fd)
+{
+  char buf[BLOCKSIZE];
+  int i;
+  int total = 0;
+  int rc;
+  memset(buf, 'A', BLOCKSIZE);
+
+  if (lseek(fd, 0, SEEK_SET) < 0)
+    return -errno;
+  while (total < config.filesize) {
+    rc = write(fd, buf, BLOCKSIZE);
+    if (rc < 0)
+      return -errno;
+    total += rc;
+  }
+  if (lseek(fd, 0, SEEK_SET) < 0)
+    return -errno;
+  return 0;
+}
+
+
+int perform_truncate(
+    int fd)
+{
+    return ftruncate(fd, 0);
+}
+
+
+int perform_seek(
+    int fd)
+{
+    if (lseek(fd, 0, SEEK_END) < 0)
+      return -1;
+    return 0;
+}
+
+
+int perform_cmd_request(
+    int clientfd,
+    int cmd)
+{
+  struct timespec time;
+  struct iovec vec[27];
+  int rc, nvec;
+  struct nfsstat diff, then, now;
+
+  get_nfs_statistics(&then);
+  if (cmd == CTRL_MAP)
+    rc = timediff(&time, perform_map, testfd);
+  else if (cmd == CTRL_READ)
+    rc = timediff(&time, perform_read, testfd);
+  else if (cmd == CTRL_WRITE)
+    rc = timediff(&time, perform_write, testfd);
+  else if (cmd == CTRL_TRUNCATE)
+    rc = timediff(&time, perform_truncate, testfd);
+  else if (cmd == CTRL_SEEK)
+    rc = timediff(&time, perform_seek, testfd);
+  else if (cmd == CTRL_STAT)
+    rc = timediff(&time, perform_stat, testfd);
+  else
+    abort();
+  get_nfs_statistics(&now);
+
+  if (rc < 0) {
+    cmd = CTRL_ERROR;
+    nvec = 2;
+  }
+  else {
+    cmd = CTRL_DONE;
+    nvec = 27;
+  }
+  diff = nfs_diff_stats(then, now);
+
+  vec[0].iov_base = &cmd;               vec[0].iov_len = sizeof(cmd);
+  vec[1].iov_base = &rc;                vec[1].iov_len = sizeof(rc);
+  vec[2].iov_base = &time.tv_sec;       vec[2].iov_len = sizeof(time.tv_sec); 
+  vec[3].iov_base = &time.tv_nsec;      vec[3].iov_len = sizeof(time.tv_nsec);
+
+  vec[4].iov_base = &diff.calls;        vec[4].iov_len = sizeof(uint64_t);
+  vec[5].iov_base = &diff.null;         vec[5].iov_len = sizeof(uint64_t);
+  vec[6].iov_base = &diff.getattr;      vec[6].iov_len = sizeof(uint64_t);
+  vec[7].iov_base = &diff.setattr;      vec[7].iov_len = sizeof(uint64_t);
+  vec[8].iov_base = &diff.lookup;       vec[8].iov_len = sizeof(uint64_t);
+  vec[9].iov_base = &diff.access;       vec[9].iov_len = sizeof(uint64_t);
+  vec[10].iov_base = &diff.readlink;    vec[10].iov_len = sizeof(uint64_t);
+  vec[11].iov_base = &diff.read;        vec[11].iov_len = sizeof(uint64_t);
+  vec[12].iov_base = &diff.write;       vec[12].iov_len = sizeof(uint64_t);
+  vec[13].iov_base = &diff.create;      vec[13].iov_len = sizeof(uint64_t);
+  vec[14].iov_base = &diff.mkdir;       vec[14].iov_len = sizeof(uint64_t);
+  vec[15].iov_base = &diff.symlink;     vec[15].iov_len = sizeof(uint64_t);
+  vec[16].iov_base = &diff.mknod;       vec[16].iov_len = sizeof(uint64_t);
+  vec[17].iov_base = &diff.remove;      vec[17].iov_len = sizeof(uint64_t);
+  vec[18].iov_base = &diff.rmdir;       vec[18].iov_len = sizeof(uint64_t);
+  vec[19].iov_base = &diff.rename;      vec[19].iov_len = sizeof(uint64_t);
+  vec[20].iov_base = &diff.link;        vec[20].iov_len = sizeof(uint64_t);
+  vec[21].iov_base = &diff.readdir;     vec[21].iov_len = sizeof(uint64_t);
+  vec[22].iov_base = &diff.readdirplus; vec[22].iov_len = sizeof(uint64_t);
+  vec[23].iov_base = &diff.fsstat;      vec[23].iov_len = sizeof(uint64_t);
+  vec[24].iov_base = &diff.fsinfo;      vec[24].iov_len = sizeof(uint64_t);
+  vec[25].iov_base = &diff.pathconf;    vec[25].iov_len = sizeof(uint64_t);
+  vec[26].iov_base = &diff.commit;      vec[26].iov_len = sizeof(uint64_t);
+
+  return writev(clientfd, vec, nvec); 
+}
+
+
+
+void handle_command(
+    int clientfd)
+{
+  uint32_t cmdtype;
+
+  cmdtype = CTRL_READY;
+  /* Inform this client we are ready to accept his commands */
+  if (send(clientfd, &cmdtype, sizeof(cmdtype), 0) < 0)
+    goto disconnect;
+
+  while (1) {
+    /* We receive a command it must match our protocol */
+    if (recv(clientfd, &cmdtype, 4, 0) <= 0)
+        goto disconnect;
+
+    switch(cmdtype) {
+      case CTRL_CONFIG:
+        if (send_config(clientfd) <= 0)
+          goto disconnect;
+      break;
+
+      case CTRL_MAP:
+      case CTRL_READ:
+      case CTRL_SEEK:
+      case CTRL_STAT:
+      case CTRL_TRUNCATE:
+      case CTRL_WRITE:
+        if (perform_cmd_request(clientfd, cmdtype) <= 0)
+          goto disconnect;
+      break;
+
+      default:
+        errno = EBADE;
+        if (send_error(clientfd) <= 0)
+          goto disconnect;
+      break;
+    }
+  }
+  
+  return;
+
+disconnect:
+  warnx("Lost connection to client");
+  shutdown(clientfd, SHUT_RDWR);
+  close(clientfd);
+  clientfd = -1;
+  return;
+}
+
+
+int main(
+  int argc,
+  char **argv)
+{
+  struct sockaddr_un un = { AF_UNIX, 0 };
+  struct sigaction act;
+  char pathtmp[PATH_MAX];
+  sigset_t set;
+
+  parse_config(argc, argv);
+  strncpy(pathtmp, config.path, PATH_MAX);
+  atexit(cleanup);
+
+  /* Create relevent signal handlers */
+  if (sigemptyset(&set) < 0)
+    err(EX_OSERR, "Cannot manipulate signal sets");
+  if (sigaddset(&set, SIGINT) < 0)
+    err(EX_OSERR, "Cannot manipulate signal sets");
+  if (sigaddset(&set, SIGTERM) < 0)
+    err(EX_OSERR, "Cannot manipulate signal sets");
+  act.sa_handler = sigcleanup;
+  act.sa_mask = set;
+ 
+  if (sigaction(SIGINT, &act, NULL) < 0)
+    err(EX_OSERR, "Cannot setup signal handlers");
+  if (sigaction(SIGTERM, &act, NULL) < 0)
+    err(EX_OSERR, "Cannot setup signal handlers");
+
+  act.sa_handler = SIG_IGN;
+  if (sigaction(SIGPIPE, &act, NULL) < 0)
+    err(EX_OSERR, "Cannot setup signal handlers");
+
+  /* Setup our socket and file */
+  strncpy(un.sun_path, config.sockpath, UNIX_PATH_MAX);
+  sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (sockfd < 0)
+    err(EX_OSERR, "Cannot create unix socket");
+  if (bind(sockfd, (struct sockaddr *)&un, sizeof(un)) < 0)
+    err(EX_OSERR, "Cannot bind to socket");
+  madesock = 1;
+  /* Set the cloexec flag */
+  if (fcntl(sockfd, F_SETFD, FD_CLOEXEC, 1) < 0)
+    err(EX_OSERR, "Cannot close on exec");
+
+  testfd = open(config.path, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC, S_IRUSR|S_IWUSR);
+  if (testfd < 0)
+    err(EX_OSERR, "Cannot create file \"%s\"", config.path);
+  madefile = 1;
+  if (realpath(pathtmp, config.path) < 0)
+    err(EX_OSERR, "Cannot resolve path to \"%s\"", config.path);
+
+  if (listen(sockfd, 1) < 0)
+    err(EX_OSERR, "Could not listen on socket");
+  /* We must wait for a client to come along and control the flow */
+  while (1) {
+    printf("Waiting for connection\n");
+    clientfd = accept4(sockfd, NULL, NULL, SOCK_CLOEXEC);
+    printf("Connection accepted\n");
+    /* Handle command */
+    handle_command(clientfd);
+  }
+  
+
+}

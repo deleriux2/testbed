@@ -1,0 +1,12 @@
+#include "common.h"
+#include "multicast.h"
+
+#include <sys/socket.h>
+
+static int mcastfd;
+
+int multicast_init(
+  void)
+{
+  mcastfd = 
+}

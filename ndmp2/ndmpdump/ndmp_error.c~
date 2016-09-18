@@ -1,0 +1,128 @@
+#include "common.h"
+#include "ndmp_error.h"
+#include "ndmp_common.h"
+#include "ndmp.h"
+#include <netdb.h>
+
+static int err_major = 0;
+static int err_minor = 0;
+
+static const char *ndmp_header_errors[] = {
+   "No error",
+   "Request not supported",
+   "Device is busy",
+   "Device is already opened",
+   "Not authorized",
+   "Permission denied",
+   "Unable to decode a receiving header packet",
+   "Device is not open",
+   "IO Error",
+   "Timed out",
+   "Arguments requested were illegal",
+   "Tape is not loaded",
+   "Write protection error",
+   "End of file",
+   "File not found",
+   "Bad file",
+   "No such device",
+   "No bus",
+   "XDR decode error",
+   "Illegal state",
+   "XDR Encode error",
+   "No memory",
+   "Connect error",
+   "Invalid sequence/Out of sequence",
+   "Read in progress",
+   "Precondition",
+   "Unsupported class",
+   "Version is not supported",
+   "Duplicate class error",
+   "Extension dandn illegal",
+   "Unable to decode header packet",
+   "Expected a message request packet but received something else",
+   "Unable to encode header packet",
+   "Received an unexpected message code in packet",
+   "Expected a message response packet but receiving something else",
+   "Unexpected sequence number was received",
+};
+
+static const char *ndmp_dispatcher_errors[] = {
+   "The maximum number of dispatched file entries has been reached",  
+   "Removing FD from the dispatcher has failed. Unable to locate callback for FD",
+};
+
+static const char *ndmp_connect_errors[] = {
+   "Connected",
+   "The server is not accepting connections",
+   "The server is shutting down",
+   "Decode error marshalling connection status notification",
+   "Peer has unsupported protocol version",
+   "Encode error marshalling connection open",
+   "Decode error unmarshalling connection open",
+   "Unable to generate a hash for the authentication request",
+   "Encode error marshalling authentication request",
+   "Decode error unmarshalling authentication request",
+};
+
+static const char *ndmp_xdr_errors[] = {
+   "Sending XDR request failed",
+   "Receiving XDR request failed",
+};
+
+static const char *ndmp_config_errors[] = {
+   "The peer does not provide the supported authentication mechanism",
+   "Encode error marshalling authentication info",
+   "Decode error unmarshalling authentication info",
+   "Encode error marshalling server info",
+   "Decode error unmarshalling server info",
+   "The authentication mechanism supplied does not match the authentication mechanism advertised",
+   "Encode error marshalling filesystem info",
+   "Decode error unmarshalling filesystem info",
+};
+
+void ndmp_print_error(
+      ndmp_session *sess,
+      char *buf, 
+      int len)
+
+{
+   switch (sess->err_major) {
+   case MAJ_NO_ERROR:
+      snprintf(buf, len, "Success");
+   break;
+
+   case MAJ_SYSTEM_ERROR:
+      snprintf(buf, len, "Operating System Error: %s", strerror(sess->err_minor), buf);
+   break;
+
+   case MAJ_LOOKUP_ERROR:
+      snprintf(buf, len, "Network Error: %s", gai_strerror(sess->err_minor), len);
+   break;
+
+   case MAJ_APPLICATION_ERROR:
+   break;
+
+   case MAJ_HEADER_ERROR:
+      snprintf(buf, len, "Server Response Error: %s", ndmp_header_errors[sess->err_minor]);
+   break;
+
+   case MAJ_CONNECT_ERROR:
+      snprintf(buf, len, "Connection Error: %s", ndmp_connect_errors[sess->err_minor]);
+   break;
+
+   case MAJ_XDR_ERROR:
+      snprintf(buf, len, "Protocol Translation Error: %s", ndmp_xdr_errors[sess->err_minor]);
+   break;
+
+   case MAJ_CONFIG_ERROR:
+      snprintf(buf, len, "Data Server Configuration Error: %s", ndmp_config_errors[sess->err_minor]);
+   break;
+   }
+
+   /* Reset the error when retrieved */
+   sess->err_major = 0;
+   sess->err_minor = 0;
+   if (sess->err_text)
+      free(sess->err_text);
+   sess->err_text = NULL;
+}

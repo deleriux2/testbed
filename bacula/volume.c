@@ -1,0 +1,328 @@
+#include "label.h"
+#include "volume.h"
+#include <sysexits.h>
+#include <err.h>
+#include <byteswap.h>
+#include <string.h>
+#include <zlib.h>
+#include <libgen.h>
+
+#define _XOPEN_SOURCE 600
+#include <fcntl.h>
+
+#define read_int(a) bswap_32(*a); a++
+#define BLOCK_MAGIC "BB02"
+#define BLOCK_MAGIC_LEN 4
+#define MAX_BLOCK_SIZE 2000000
+
+/* Open a volume */
+volume_t * volume_open(
+    const char *filename)
+{
+  volume_t * vol = NULL;
+  struct stat st;
+
+  vol = malloc(sizeof(volume_t));
+  memset(vol, 0, sizeof(volume_t));
+  vol->fd = -1;
+
+  if (!vol) {
+    warn("Cannot allocate memory");
+    goto fail;
+  }
+
+  vol->fd = open(filename, O_RDONLY);
+  if (vol->fd < 0) {
+    warn("Cannot open file");
+    goto fail;
+  }
+
+  if (lstat(filename, &st) < 0) {
+    warn("Cannot stat file");
+    goto fail;
+  }
+
+  if (posix_fadvise(vol->fd, 0, vol->size, POSIX_FADV_SEQUENTIAL)) {
+    warn("Cannot set file access pattern");
+    goto fail;
+  }
+
+  vol->size = st.st_size;
+  vol->offset = 0;
+  vol->block.checksum = 0xFFFF;
+  vol->block.number = -1;
+  strncpy(vol->name, basename((char *)filename), NAME_MAX); 
+  strncpy(vol->path, filename, PATH_MAX);
+  
+  return vol;
+
+fail:
+  if (vol)
+    free(vol);
+  if (vol->fd)
+    if (close(vol->fd) < 0)
+      err(EX_OSERR, "Cannot close volume!");
+
+  return NULL;
+}
+
+
+int volume_close(
+    volume_t *vol)
+{
+  if (!vol)
+    return -1;
+
+  if (vol->fd < 0)
+    return 1;
+
+  if (close(vol->fd) < 0)
+    return -1;
+  vol->fd = -1;
+
+  return 1;
+}
+
+int volume_reopen(
+    volume_t *vol)
+{
+  if (!vol)
+    return -1;
+
+  if (vol->fd >= 0)
+    return 1;
+
+  if ((vol->fd = open(vol->path, O_RDONLY)) < 0) {
+    warn("Cannot reopen volume");
+    return -1;
+  }
+
+  if (posix_fadvise(vol->fd, 0, vol->size, POSIX_FADV_SEQUENTIAL)) {
+    warn("Cannot set file access pattern on reopen");
+    return -1;
+  }
+
+  return vol->fd;
+}
+
+
+
+/* Parses block */
+static inline int parse_block(
+    volume_t *vol,
+    const char *buf, 
+    block_t *block)
+{
+  int *i = (uint32_t *)buf;
+  int oldblock = -1;
+
+  /* Read the remaining bytes and store in data */
+  if (block->data)
+    free(block->data);
+
+  oldblock = block->number;
+  memset(block, 0, sizeof(block_t));
+
+  /* Read the block data and parse */
+  block->checksum = read_int(i);
+  block->length = read_int(i);
+  block->number = read_int(i);
+  memcpy(block->id, &buf[12], 4); i++;
+  block->vol_sessionid = read_int(i);
+  block->vol_sessiontime = read_int(i);
+
+  if (strncmp(vol->block.id, BLOCK_MAGIC, BLOCK_MAGIC_LEN) != 0) {
+    warnx("Invalid block magic at position %llu block %d. Corrupt block?", 
+         vol->offset + block->offset, block->number);
+    goto fail; 
+  }
+
+  if (block->length < 0 || block->length > MAX_BLOCK_SIZE) {
+    warnx("Invalid block size %d at position %llu block %d. Corrupt block?",
+          block->length, vol->offset + block->offset, block->number);
+    goto fail;
+  }
+
+  if (oldblock && block->number && oldblock+1 != block->number || block->number < 0) {
+    warnx("Invalid block number %d at position %llu previous block %d. Corrupt block?",
+          block->number, vol->offset + block->offset, oldblock);
+    goto fail;
+  }
+
+
+  block->data = malloc(block->length);
+  if (!block->data) {
+    warn("Unable to allocate memory");
+    goto fail;
+  }
+
+  return 1;
+
+fail:
+
+  if (block->data)
+    free(block->data);
+  block->data = NULL;
+  memset(block, 0, sizeof(block_t));
+  block->checksum = 0xFFFF;
+  block->offset = 0;
+  return 0;
+}
+
+
+
+/* Read in a record */
+int record_read(
+    volume_t *vol)
+{
+  record_t *record = &vol->record;
+  block_t *block = &vol->block;
+  int32_t *i = NULL;
+
+  if (!block) {
+    warnx("Block was null");
+    goto fail;
+  }
+
+  if (!record) {
+    warnx("Record was null");
+    goto fail;
+  }
+
+  if (!block->data) {
+    warnx("Block data was null");
+    goto fail;
+  }
+
+  if ((block->offset + sizeof(*i)*3) >= block->length) {
+    goto fail;
+  }
+
+  i = block->data + block->offset;
+  record->fileindex = read_int(i);
+  record->stream = read_int(i);
+  record->length = read_int(i);
+  block->offset += sizeof(*i)*3;
+
+  if (record->length < 0 || record->length > MAX_BLOCK_SIZE-65536) {
+    warnx("Invalid record length %d at position %llu block number %d. Corrupt record?",
+          record->length, vol->offset + vol->block.offset, vol->block.number);
+    goto fail;
+  }
+
+  if (record->fileindex < -8) {
+    warnx("Invalid fileindex %d at position %llu block number %d. Corrupt record?",
+          record->fileindex, vol->offset + vol->block.offset, vol->block.number);
+    goto fail;
+  }
+
+  return 1;
+
+fail:
+  return 0;
+}
+
+
+/* Get the next record, automatically move over appropriate 
+ * blocks as required */
+int record_get(
+    volume_t *vol)
+{
+  block_t *block;
+  record_t *rec;
+
+  if (!vol) {
+    warnx("Volume is not valid");
+    return -1;
+  }
+
+  block = &vol->block;
+  rec = &vol->record;
+  int rc = -1;
+
+  if (!block->data) {
+    if ((rc = block_read(vol)) < 0) {
+      warnx("Cannot read next block");
+      return -1;
+    }
+  }
+
+  if (rc == 0)
+    return 0;
+
+  if (!record_read(vol)) {
+    if ((rc = block_read(vol)) < 0) {
+      warnx("Cannot read next block position %llu, block %d", vol->offset + block->offset, block->number);
+      return -1;
+    }
+    if (!record_read(vol)) {
+      return 0;
+    }
+  }
+  if (rc == 0) 
+    return 0;
+
+  return 1;
+}
+
+
+/* Read the next block in a volume */
+int block_read(
+    volume_t *vol)
+{
+
+  uint32_t *i;
+  size_t sz;
+  char buf[BLOCK_HDR_SZ];
+  uint32_t ourcrc;
+  memset(buf, 0, sizeof(buf));
+
+  if (!vol) {
+    warnx("Null volume passed");
+    goto fail;
+  }
+
+  if ((sz = read(vol->fd, buf, BLOCK_HDR_SZ)) < 0) {
+    warn("Cannot read from volume");
+    goto fail;
+  }
+
+  if (sz == 0)
+    return 0;
+
+  if (sz != BLOCK_HDR_SZ) {
+    warnx("Insufficient data read when attempting to read block header");
+    goto fail;
+  }
+
+  vol->offset += sz;
+
+  if (!parse_block(vol, buf, &vol->block))
+    goto fail;
+
+  /* Copy our temp buffer into the data location */
+  memcpy(vol->block.data, buf, BLOCK_HDR_SZ);
+
+  /* Read the rest of the block data into the same buffer */
+  if ((sz = read(vol->fd, vol->block.data+BLOCK_HDR_SZ, vol->block.length-BLOCK_HDR_SZ)) <= 0) {
+    warn("Unable to read volume");
+    goto fail;
+  }
+
+  /* Perform a CRC checksum on the data */
+  ourcrc = crc32(0L, Z_NULL, 0);
+  ourcrc = crc32(ourcrc, vol->block.data+4, vol->block.length-4);
+
+  if (ourcrc != vol->block.checksum) {
+    warnx("Position %llu block %d CRC32 checksum mismatch! Corrupt block?", vol->offset, vol->block.number);
+    goto fail;
+  }
+
+  vol->block.offset += BLOCK_HDR_SZ;
+  vol->offset += sz;
+
+  return 1;
+
+fail:
+  return -1;
+}

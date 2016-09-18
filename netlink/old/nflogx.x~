@@ -1,0 +1,24 @@
+
+struct nflog_log {
+  string user<128>;
+  char group<128>;
+  char indev<128>;
+  char outdev<128>;
+  char physindev<128>;
+  char physoutdev<128>;
+  char prefix<64>;
+  char hwaddr<16>;
+  string payload<>;
+  struct timestamp {
+    int secs;
+    int nsecs;
+  }
+  int payloadlen;
+  int mark;
+
+  unsigned int pktsz;
+  unsigned int ttl;
+  string protocol<16>;
+  string srcaddr<16>;
+  string dstaddr<16>;
+}

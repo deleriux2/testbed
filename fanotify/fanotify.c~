@@ -1,0 +1,157 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <linux/fcntl.h>
+#include <sys/types.h>
+#include <sys/fanotify.h>
+#include <sys/epoll.h>
+
+#include <errno.h>
+#include <sysexits.h>
+#include <err.h>
+#include <limits.h>
+
+#define BUFSZ 8192
+
+/* Processes the fanotify events */
+void process_fanotify(
+    int fd)
+{
+  int len;
+  char buf[BUFSZ]; 
+  char name[PATH_MAX], path[PATH_MAX];
+  memset(buf, 0, BUFSZ);
+  struct fanotify_event_metadata *meta;
+
+  if ((len = read(fd, buf, BUFSZ)) < 0)
+    err(EX_OSERR, "Cannot read from fanotify");
+
+  meta = (struct fanotify_event_metadata *)buf;
+
+  while (FAN_EVENT_OK(meta, len)) {
+
+    if (meta->fd != FAN_NOFD) {
+
+      if (meta->mask & FAN_Q_OVERFLOW) {
+        warnx("fanotify queue is overflowing!");
+      }
+      else if (meta->mask & FAN_OPEN) {
+
+        memset(name, 0, PATH_MAX);
+        snprintf(name, PATH_MAX, "/proc/self/fd/%d", meta->fd);
+        memset(path, 0, PATH_MAX);
+        if (readlink(name, path, PATH_MAX) < 0) {
+          warn("Cannot read file path from fd");
+        }
+
+        printf("Opened %s for pid %d\n", path, meta->pid);
+        close(meta->fd);
+      }
+
+    }
+
+    else {
+      printf("No fd\n");
+      if (meta->mask & FAN_Q_OVERFLOW)
+        warnx("fanotify queue is overflowing!");
+
+    }
+
+    meta = FAN_EVENT_NEXT(meta, len);
+  }
+}
+
+/* Runs the event loop */
+void event_loop(
+    int poll)
+{
+  int rc;
+  int fd;
+  struct epoll_event event;
+
+restart:
+  while ((rc = epoll_wait(poll, &event, 1, -1)) > -1) {
+    fd = event.data.fd;
+
+    if (event.events & EPOLLERR)
+      break;
+
+    if (event.events & EPOLLIN) {
+      process_fanotify(fd);
+    }
+  }
+
+out:
+  if (rc < 0) {
+    if (errno == EINTR) {
+      goto restart;
+    }
+    else {
+      err(EX_OSERR, "Cannot process event loop");
+    }
+  }
+}
+
+
+/* Setup the epoll, taking in the FD to add */
+int setup_epoll(
+    int fd)
+{
+  int poll = -1;
+  struct epoll_event event;
+  memset(&event, 0, sizeof(event));
+
+  poll = epoll_create1(EPOLL_CLOEXEC);
+  if (poll < 0)
+    err(EX_OSERR, "Cannot create epoll fd");
+
+  event.events = EPOLLIN;
+  event.data.fd = fd;
+  if (epoll_ctl(poll, EPOLL_CTL_ADD, fd, &event) < 0)
+    err(EX_OSERR, "Cannot add fd to epoll event");
+
+  return poll;
+}
+
+int setup_fanotify(
+    const char *path)
+{
+  int fd = -1;
+  int rc = -1;
+
+  fd = fanotify_init(FAN_CLOEXEC|FAN_CLASS_NOTIF, O_RDONLY|O_LARGEFILE);
+  if (fd < 0)
+    err(EX_OSERR, "Cannot setup fanotify fd");
+
+  /* Mark the path as a mount to watch */
+  rc =fanotify_mark(fd, FAN_MARK_ADD|FAN_MARK_MOUNT, FAN_OPEN, AT_FDCWD, path);
+  if (rc < 0)
+    err(EX_OSERR, "Cannot create file mark on %s", path);
+
+  return fd;
+}
+
+
+int main(
+    int argc, 
+    const char **argv)
+{
+  int fan;
+  int poll;
+
+  if (argc < 2)
+    errx(EX_CONFIG, "Must pass a file as a basis for mount watch");
+
+  /* Check arg is a valid and readable file */
+  if (access(argv[1], R_OK) < 0)
+    err(EX_OSERR, "Cannot read target file");
+
+  fan = setup_fanotify(argv[1]);
+  poll = setup_epoll(fan);
+
+  event_loop(poll);
+
+  exit(0);
+}

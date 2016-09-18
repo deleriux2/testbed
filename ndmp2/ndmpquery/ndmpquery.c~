@@ -1,0 +1,295 @@
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <unistd.h>
+#include "ndmp_common.h"
+
+#include <Uri.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+#define NDMP_DEFAULT_PORT "10000"
+
+/* TODO
+Add a parser and get rid of the environ crap. (application specific)
+
+Add an API so you can feed environ arguments to the API without having to use
+the ndmp_env primitives.
+
+*/
+
+struct config {
+   char username[256];
+   char password[256];
+   char hostname[256];
+   char port[6];
+   char path[256];
+   ndmp_env query[64];
+   int querynum;
+} config;
+
+static void init_config() {
+   struct passwd *user;
+
+   memset(&config, 0, sizeof(config));
+   strncpy(config.port, "10000", 6);
+
+   user = getpwuid(getuid());
+   strncpy(config.username, user->pw_name, 256);
+
+   /* Dont set host cannot be guessed */
+}
+
+/* Helper function returns a full path to the filesystem/path we
+ * care about */
+static char * get_uripath(UriPathSegmentA *path) {
+  char *result = calloc(1, 2048);
+  char *r = result;
+  int len;
+  UriPathSegmentA *tmp = path;
+
+  for (tmp=path; tmp != NULL; tmp=tmp->next) {
+    *r = '/';
+    r += 1;
+    strncpy(r, tmp->text.first, tmp->text.afterLast - tmp->text.first);
+    r += tmp->text.afterLast - tmp->text.first;
+    if (r-result > 2048) {
+      fprintf(stderr, "Path too big to resolve!\n");
+      return NULL;
+    }
+  }
+  return result;
+}
+
+
+/* Merges the configurations idea of what envs to modify against what is
+   given in the config */
+bool merge_ndmp_envs(
+       ndmp_session *sess,
+       struct config *source)
+{
+   int i, j;
+   int offset;
+   bool found=false;
+   /* Check to see we can find the backup type */
+   for (i=0; i < sess->bu_len; i++) {
+      if (strncmp(sess->bu[i].name, &config.path[1], 254) == 0) {
+         offset=i;
+         found=true;
+         break;
+      }
+   }
+
+   if (!found) {
+      fprintf(stderr, "Error: Unsupported backup type \"%s\""
+                     " by this ndmp data server\n", &config.path[1]);
+      return false;
+   }
+
+   /* Iterate through all the entries passed into the query and modify those we know about
+      fail with an error in the case an invalid env has been attempted to be set */
+   for (i=0; i < source->querynum; i++) {
+     found = false;
+     for (j=0; j < sess->bu[offset].env_len; j++) {
+        if (strncmp(source->query[i].name, sess->bu[offset].envs[j].name, 
+                                                               256) == 0) {
+           strncpy(sess->bu[offset].envs[i].value, source->query[i].value, 256);
+           found = true;
+           break;
+        }
+     }
+     if (!found) {
+        fprintf(stderr, "Error: The value \"%s\" is an invalid value\n", source->query[i].name);
+        return false;
+     }
+     found = false;
+   }
+
+   return true;
+}
+
+bool get_config_from_uri(
+      char *uristr)
+{
+   struct passwd *user;
+   UriParserStateA state;
+   UriUriA uri;
+   UriQueryListA *queries = NULL;
+   int items;
+   char userpass[128];
+   char *delimtmp = NULL;
+   state.uri = &uri;
+
+   /* Init config */
+   memset(&config, 0, sizeof(config));
+   memset(userpass, 0, sizeof(userpass));
+   memset(&uri, 0, sizeof(uri));
+
+   if (uriParseUriA(&state, uristr) != URI_SUCCESS) {
+      fprintf(stderr, "Unable to parse the URL given\n");
+      goto fail;
+   }
+
+   /* Check scheme is OK */
+   if (strncmp(uri.scheme.first, "ndmp", 4) != 0) {
+      fprintf(stderr, "Error: The protocol scheme must be ndmp\n");
+      goto fail;
+   }
+
+   /* Get host */
+   if (!uri.hostText.first) {
+      fprintf(stderr, "Error: The hostname selected was not parseable\n");
+      goto fail;
+   }
+   strncpy(config.hostname, uri.hostText.first, 
+      uri.hostText.afterLast - uri.hostText.first);
+
+   /* Get port */
+   if (!uri.portText.first) {
+      strncpy(config.port, NDMP_DEFAULT_PORT, sizeof(config.port));
+   }
+   else {
+      strncpy(config.port, uri.portText.first, 6);
+   }
+
+   /* Get username/password */
+   if (!uri.userInfo.first) {
+      user = getpwuid(getuid());
+      strncpy(config.username, user->pw_name, sizeof(config.username));
+   }
+   else {
+      delimtmp = strchrnul(uri.userInfo.first, ':');
+      strncpy(config.username, uri.userInfo.first, delimtmp-uri.userInfo.first);
+      if (delimtmp) {
+         delimtmp++;
+         strncpy(config.password, delimtmp, uri.userInfo.afterLast - delimtmp);
+      }
+   }
+
+   /* Query strings */
+  if (uri.query.afterLast-uri.query.first != 0) {
+    if (uriDissectQueryMallocA(&queries, &config.querynum, uri.query.first, uri.query.afterLast) != URI_SUCCESS) { 
+      fprintf(stderr, "Unable to parse query string\n");
+      goto fail;
+    }
+  }
+
+  UriQueryListA *tmp;
+  int i=0;
+  for (tmp=queries; tmp != NULL; tmp=tmp->next) {
+    if (tmp->key && tmp->value) {
+      strncpy(config.query[i].name, tmp->key, 256);
+      strncpy(config.query[i].value, tmp->value, 256);
+      i++;
+    }
+  }
+
+
+   if (uri.pathHead) {
+      strncpy(config.path, get_uripath(uri.pathHead), sizeof(config.path));
+   }
+
+   uriFreeUriMembersA(&uri);
+   uriFreeQueryListA(queries);
+   return true;
+fail:
+   uriFreeUriMembersA(&uri);
+   uriFreeQueryListA(queries);
+   return false;
+}
+
+int main(int argc, char **argv) {
+   /* Initialize config */
+   init_config();
+
+   if (argc < 2) {
+      fprintf(stderr, "Must provide a ndmp URI to connect against.\n");
+      exit(1);
+   }
+
+   if (!get_config_from_uri(argv[1])) {
+      fprintf(stderr, "Failed to parse URL on input\n");
+      exit(1);
+   }
+   printf("Hostname: %s, User: %s, Port: %s\n", config.hostname, config.username, config.port);
+   printf("Username: %s, Password: %s\n", config.username, config.password);
+
+   if (strlen(config.password) <= 0) {
+      printf("Enter password: ");
+      fgets(config.password, 64, stdin);
+      config.password[strlen(config.password)-1] = 0;
+   }
+
+   char buf[128];
+   int i, j;
+   ndmp_server_info info;
+   memset(&info, 0, sizeof(info));
+   ndmp_session *sess = ndmp_init_session();
+   if (!sess) {
+      perror("Unable to initialize ndmp session");
+      exit(1);   
+   }
+
+   
+
+   /* Connect to ndmp data server */
+   if (!ndmp_connect(sess, config.hostname, config.port, config.username, config.password))
+     goto fail;
+
+   /* Get some server info */
+   if (!ndmp_get_server_info(sess, &info))
+     goto fail;
+
+   if (!ndmp_get_fsinfo(sess))
+      goto fail;
+
+   if (!ndmp_get_buinfo(sess))
+      goto fail;
+
+   if (!merge_ndmp_envs(sess, &config))
+     goto fail;
+
+   printf("Server information: \n");
+   printf(" Vendor Name: %s\n Product Name: %s\n Revision Number: %s\n",
+            info.vendor_name, info.product_name, info.revision_number);
+
+   printf("\n");
+   printf("Filesystems available to backup:\n");
+   printf("----------------------------------------"
+          "----------------------------------------\n");
+   printf("%-4s%-32s%-32s%-8s\n", "Id", "Name", "Mountpoint", "Filesystem Type");
+   printf("----------------------------------------"
+          "----------------------------------------\n");
+   for (i=0; i < sess->fs_len; i++) {
+      printf("%-4d%-32s%-32s%-8s\n", i, sess->fs[i].device, sess->fs[i].mountpoint, sess->fs[i].fstype);
+   }
+
+   printf("\n");
+   printf("Backup systems available:\n");
+   printf("----------------------------------------"
+          "----------------------------------------\n");
+   printf("%-4s%-32s\n", "Id", "Name");
+   printf("----------------------------------------"
+          "----------------------------------------\n");
+   for (i=0; i < sess->bu_len; i++) {
+      printf("%-4d%-32s\n", i, sess->bu[i].name);
+      for (j=0; j < sess->bu[i].env_len; j++) {
+         printf("        %s=%s\n", sess->bu[i].envs[j].name, 
+                                   sess->bu[i].envs[j].value);
+      }
+   }
+   printf("\n");
+
+   ndmp_disconnect(sess);
+   ndmp_free_session(sess);
+
+   exit(0);
+fail:
+   printf("failure\n");
+   memset(buf, 0, sizeof(buf));
+   ndmp_print_error(sess, buf, sizeof(buf));
+   fprintf(stderr, "%s\n", buf);
+   exit(1);
+}

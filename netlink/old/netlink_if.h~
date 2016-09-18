@@ -1,0 +1,35 @@
+#ifndef _NETLINK_IF_H
+#define _NETLINK_IF_H
+
+#define CACHE_MAXNAME 128
+#define CACHE_MAX_DEVICES 2048
+
+struct nflog_log {
+  char group[128];
+  char indev[128];
+  char outdev[128];
+  char phyindev[128];
+  char physoutdev[128];
+  char prefix[64];
+  char hwaddr[8];
+  char *payload;
+  int payloadlen;
+
+  int mark;
+  
+};
+
+
+int netlink_cache_exists(int idx);
+char *netlink_cache_get_name(int idx);
+int netlink_cache_get_mtu(int idx);
+int netlink_cache_get_state(int idx);
+int netlink_open(void);
+void netlink_close(int fd);
+int netlink_request_interfaces(int fd);
+int netlink_request_interfaces_voidarg(void *data);
+void netlink_init(void);
+int netlink_recv(void *data);
+int netlink_cache_get_idx_from_name(char *name);
+
+#endif

@@ -1,0 +1,61 @@
+#include "common.h"
+#include "multicast.h"
+
+#include <sys/socket.h>
+#include <rpc/xdr.h>
+
+static char xdrset = 0;
+
+int multicast_init(
+  struct config *conf)
+{
+   
+  int rc;
+  if ((conf->mcastfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    goto fail;
+
+  if (bind(conf->mcastfd, (struct sockaddr *)&conf->local_addr, 
+      sizeof(conf->local_addr)) < 0)
+    goto fail;
+
+  return 0;
+
+fail:
+  if (conf->mcastfd >= 0)
+    close(conf->mcastfd);
+  return -1;
+}
+
+
+
+int multicast_send(
+  struct config *conf,
+  nflog_log *log)
+{
+  int rc;
+  size_t len;
+  XDR xdr;
+  char xdrbuf[MULTICAST_BUFLEN];
+  memset(xdrbuf, 0, MULTICAST_BUFLEN);
+
+  /* init xdr */
+  xdrmem_create(&xdr, xdrbuf, MULTICAST_BUFLEN, XDR_ENCODE);
+
+  /* Pack the structure */
+  if (!xdr_nflog_log (&xdr, log))
+    return -1;
+  len = xdr_getpos(&xdr);
+
+  /* Now push the buffer out of the socket */
+  rc = sendto(conf->mcastfd, xdrbuf, len, 0, 
+        (struct sockaddr *)&conf->mcast_addr, 
+         sizeof(conf->mcast_addr));
+
+  if (rc < 0) {
+    return -1;
+  }
+
+  /* Finally free the buffer */
+  xdrmem_free((xdrproc_t)xdr_nflog_log, (char *)log);
+  return rc;
+}

@@ -1,0 +1,340 @@
+11209 execve("./dma_main", ["./dma_main"], [/* 41 vars */]) = 0
+11209 brk(0)                            = 0x218d000
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f8db000
+11209 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+11209 open("/etc/ld.so.cache", O_RDONLY) = 3
+11209 fstat(3, {st_mode=S_IFREG|0644, st_size=73844, ...}) = 0
+11209 mmap(NULL, 73844, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f319f8c8000
+11209 close(3)                          = 0
+11209 open("/lib64/libtirpc.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0000\205\0\0\0\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=161984, ...}) = 0
+11209 mmap(NULL, 2259904, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f319f6a0000
+11209 mprotect(0x7f319f6c6000, 2097152, PROT_NONE) = 0
+11209 mmap(0x7f319f8c6000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x26000) = 0x7f319f8c6000
+11209 close(3)                          = 0
+11209 open("/usr/lib64/libssl.so.10", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0pE\241\365?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=375352, ...}) = 0
+11209 mmap(0x3ff5a00000, 2467888, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff5a00000
+11209 mprotect(0x3ff5a53000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3ff5c53000, 32768, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x53000) = 0x3ff5c53000
+11209 close(3)                          = 0
+11209 open("/lib64/libc.so.6", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\355!\356?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=1922112, ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f69f000
+11209 mmap(0x3fee200000, 3745960, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3fee200000
+11209 mprotect(0x3fee389000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3fee589000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x189000) = 0x3fee589000
+11209 mmap(0x3fee58e000, 18600, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3fee58e000
+11209 close(3)                          = 0
+11209 open("/usr/lib64/libcrypto.so.10", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0\312e\365?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=1665328, ...}) = 0
+11209 mmap(0x3ff5600000, 3773576, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff5600000
+11209 mprotect(0x3ff5774000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3ff5973000, 143360, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x173000) = 0x3ff5973000
+11209 mmap(0x3ff5996000, 13448, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3ff5996000
+11209 close(3)                          = 0
+11209 open("/lib64/libnsl.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0p@ \0010\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=116368, ...}) = 0
+11209 mmap(0x3001200000, 2198192, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3001200000
+11209 mprotect(0x3001216000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3001415000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x15000) = 0x3001415000
+11209 mmap(0x3001417000, 6832, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3001417000
+11209 close(3)                          = 0
+11209 open("/lib64/libgssglue.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\35\0\0\0\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=36584, ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f69e000
+11209 mmap(NULL, 2132112, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f319f495000
+11209 mprotect(0x7f319f49e000, 2093056, PROT_NONE) = 0
+11209 mmap(0x7f319f69d000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x8000) = 0x7f319f69d000
+11209 close(3)                          = 0
+11209 open("/lib64/libdl.so.2", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340\r`\356?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=22536, ...}) = 0
+11209 mmap(0x3fee600000, 2109696, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3fee600000
+11209 mprotect(0x3fee602000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3fee802000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x3fee802000
+11209 close(3)                          = 0
+11209 open("/lib64/libpthread.so.0", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0`\\\240\356?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=145720, ...}) = 0
+11209 mmap(0x3feea00000, 2212768, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3feea00000
+11209 mprotect(0x3feea17000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3feec17000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x17000) = 0x3feec17000
+11209 mmap(0x3feec19000, 13216, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3feec19000
+11209 close(3)                          = 0
+11209 open("/lib64/libgssapi_krb5.so.2", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0 \236 \365?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=272360, ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f494000
+11209 mmap(0x3ff5200000, 2365152, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff5200000
+11209 mprotect(0x3ff523f000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3ff543f000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x3f000) = 0x3ff543f000
+11209 close(3)                          = 0
+11209 open("/lib64/libkrb5.so.3", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\20\246\241\364?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+11209 mmap(0x3ff4a00000, 3008864, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff4a00000
+11209 mprotect(0x3ff4ad4000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3ff4cd4000, 45056, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0xd4000) = 0x3ff4cd4000
+11209 close(3)                          = 0
+11209 open("/lib64/libcom_err.so.2", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\23 \362?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=17256, ...}) = 0
+11209 mmap(0x3ff2200000, 2109872, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff2200000
+11209 mprotect(0x3ff2203000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3ff2402000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x3ff2402000
+11209 close(3)                          = 0
+11209 open("/lib64/libk5crypto.so.3", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\300G\340\364?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=181632, ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f493000
+11209 mmap(0x3ff4e00000, 2275296, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff4e00000
+11209 mprotect(0x3ff4e2a000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3ff5029000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x29000) = 0x3ff5029000
+11209 close(3)                          = 0
+11209 open("/lib64/libz.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0000\37 \357?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=90952, ...}) = 0
+11209 mmap(0x3fef200000, 2183696, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3fef200000
+11209 mprotect(0x3fef215000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3fef414000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x14000) = 0x3fef414000
+11209 close(3)                          = 0
+11209 open("/lib64/libkrb5support.so.0", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360( \364?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=46352, ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f492000
+11209 mmap(0x3ff4200000, 2139184, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff4200000
+11209 mprotect(0x3ff420a000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3ff4409000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x9000) = 0x3ff4409000
+11209 close(3)                          = 0
+11209 open("/lib64/libkeyutils.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\v`\363?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=12592, ...}) = 0
+11209 mmap(0x3ff3600000, 2105424, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff3600000
+11209 mprotect(0x3ff3602000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3ff3801000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1000) = 0x3ff3801000
+11209 close(3)                          = 0
+11209 open("/lib64/libresolv.so.2", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\00009 \360?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=113952, ...}) = 0
+11209 mmap(0x3ff0200000, 2202248, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3ff0200000
+11209 mprotect(0x3ff0216000, 2097152, PROT_NONE) = 0
+11209 mmap(0x3ff0416000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16000) = 0x3ff0416000
+11209 mmap(0x3ff0418000, 6792, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3ff0418000
+11209 close(3)                          = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f491000
+11209 open("/lib64/libselinux.so.1", O_RDONLY) = 3
+11209 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0PX\240\357?\0\0\0"..., 832) = 832
+11209 fstat(3, {st_mode=S_IFREG|0755, st_size=124624, ...}) = 0
+11209 mmap(0x3fefa00000, 2221912, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x3fefa00000
+11209 mprotect(0x3fefa1d000, 2093056, PROT_NONE) = 0
+11209 mmap(0x3fefc1c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1c000) = 0x3fefc1c000
+11209 mmap(0x3fefc1e000, 1880, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x3fefc1e000
+11209 close(3)                          = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f490000
+11209 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f48e000
+11209 arch_prctl(ARCH_SET_FS, 0x7f319f48e7c0) = 0
+11209 mprotect(0x3fefc1c000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff0416000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff3801000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff4409000, 4096, PROT_READ) = 0
+11209 mprotect(0x3fef414000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff5029000, 8192, PROT_READ) = 0
+11209 mprotect(0x3ff2402000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff4cd4000, 36864, PROT_READ) = 0
+11209 mprotect(0x3ff543f000, 4096, PROT_READ) = 0
+11209 mprotect(0x3feec17000, 4096, PROT_READ) = 0
+11209 mprotect(0x3fee802000, 4096, PROT_READ) = 0
+11209 mprotect(0x3001415000, 4096, PROT_READ) = 0
+11209 mprotect(0x3ff5973000, 102400, PROT_READ) = 0
+11209 mprotect(0x3fee589000, 16384, PROT_READ) = 0
+11209 mprotect(0x3ff5c53000, 12288, PROT_READ) = 0
+11209 mprotect(0x3fee01f000, 4096, PROT_READ) = 0
+11209 munmap(0x7f319f8c8000, 73844)     = 0
+11209 set_tid_address(0x7f319f48ea90)   = 11209
+11209 set_robust_list(0x7f319f48eaa0, 0x18) = 0
+11209 futex(0x7fff188d506c, FUTEX_WAKE_PRIVATE, 1) = 0
+11209 futex(0x7fff188d506c, FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME, 1, NULL, 7f319f48e7c0) = -1 EAGAIN (Resource temporarily unavailable)
+11209 rt_sigaction(SIGRTMIN, {0x3feea05ae0, [], SA_RESTORER|SA_SIGINFO, 0x3feea0f500}, NULL, 8) = 0
+11209 rt_sigaction(SIGRT_1, {0x3feea05b70, [], SA_RESTORER|SA_RESTART|SA_SIGINFO, 0x3feea0f500}, NULL, 8) = 0
+11209 rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+11209 getrlimit(RLIMIT_STACK, {rlim_cur=10240*1024, rlim_max=RLIM_INFINITY}) = 0
+11209 statfs("/selinux", {f_type=0xf97cff8c, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={0, 0}, f_namelen=255, f_frsize=4096}) = 0
+11209 brk(0)                            = 0x218d000
+11209 brk(0x21ae000)                    = 0x21ae000
+11209 mmap(NULL, 304, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, 0, 0) = 0x7f319f8da000
+11209 socket(PF_NETLINK, SOCK_RAW, 0)   = 3
+11209 bind(3, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
+11209 getsockname(3, {sa_family=AF_NETLINK, pid=11209, groups=00000000}, [12]) = 0
+11209 sendto(3, "\24\0\0\0\26\0\1\3>\336\356P\0\0\0\0\0\0\0\0", 20, 0, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 20
+11209 recvmsg(3, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"0\0\0\0\24\0\2\0>\336\356P\311+\0\0\2\10\200\376\1\0\0\0\10\0\1\0\177\0\0\1"..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 1008
+11209 recvmsg(3, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"@\0\0\0\24\0\2\0>\336\356P\311+\0\0\n\200\200\376\1\0\0\0\24\0\1\0\0\0\0\0"..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 768
+11209 recvmsg(3, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"\24\0\0\0\3\0\2\0>\336\356P\311+\0\0\0\0\0\0\1\0\0\0\24\0\1\0\0\0\0\0"..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 20
+11209 close(3)                          = 0
+11209 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+11209 connect(3, {sa_family=AF_INET, sin_port=htons(10000), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+11209 recvfrom(3, "\200\0\0$\0\0\0\1P\356\336>\0\0\0\0\0\0\5\2\0\0\0\0\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 40
+11209 sendto(3, "\200\0\0\34\0\0\0\1P\356\336>\0\0\0\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\4", 32, MSG_NOSIGNAL, NULL, 0) = 32
+11209 recvfrom(3, "\200\0\0\34\0\0\0\2P\356\336>\0\0\0\1\0\0\t\0\0\0\0\1\0\0\0\0\0\0\0\0", 4000, 0, NULL, NULL) = 32
+11209 sendto(3, "\200\0\0\30\0\0\0\2P\356\336>\0\0\0\0\0\0\1\10\0\0\0\0\0\0\0\0", 28, MSG_NOSIGNAL, NULL, 0) = 28
+11209 recvfrom(3, "\200\0\0T\0\0\0\3P\356\336>\0\0\0\1\0\0\1\10\0\0\0\2\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 88
+11209 sendto(3, "\200\0\0\34\0\0\0\3P\356\336>\0\0\0\0\0\0\1\3\0\0\0\0\0\0\0\0\0\0\0\2", 32, MSG_NOSIGNAL, NULL, 0) = 32
+11209 recvfrom(3, "\200\0\0`\0\0\0\4P\356\336>\0\0\0\1\0\0\1\3\0\0\0\3\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 100
+11209 sendto(3, "\200\0\0008\0\0\0\4P\356\336>\0\0\0\0\0\0\t\1\0\0\0\0\0\0\0\0\0\0\0\2"..., 60, MSG_NOSIGNAL, NULL, 0) = 60
+11209 recvfrom(3, "\200\0\0\34\0\0\0\5P\356\336>\0\0\0\1\0\0\t\1\0\0\0\4\0\0\0\0\0\0\0\0", 4000, 0, NULL, NULL) = 32
+11209 sendto(3, "\200\0\0\30\0\0\0\5P\356\336>\0\0\0\0\0\0\1\4\0\0\0\0\0\0\0\0", 28, MSG_NOSIGNAL, NULL, 0) = 28
+11209 recvfrom(3, "\200\0\1T\0\0\0\6P\356\336>\0\0\0\1\0\0\1\4\0\0\0\5\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 344
+11209 sendto(3, "\200\0\0\30\0\0\0\6P\356\336>\0\0\0\0\0\0\1\2\0\0\0\0\0\0\0\0", 28, MSG_NOSIGNAL, NULL, 0) = 28
+11209 recvfrom(3, "\200\0\0$\0\0\0\7P\356\336>\0\0\0\1\0\0\1\2\0\0\0\6\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 40
+11209 sendto(3, "\200\0\0\30\0\0\0\7P\356\336>\0\0\0\0\0\0\1\5\0\0\0\0\0\0\0\0", 28, MSG_NOSIGNAL, NULL, 0) = 28
+11209 recvfrom(3, "\200\0\3t\0\0\0\10P\356\336>\0\0\0\1\0\0\1\5\0\0\0\7\0\0\0\0\0\0\0\0"..., 4000, 0, NULL, NULL) = 888
+11209 fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 48), ...}) = 0
+11209 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f319f8d9000
+11209 write(1, "BACKUP TYPES: 1\n", 16) = 16
+11209 write(1, "Backup Type Name: dump\n", 23) = 23
+11209 write(1, "Variables:\n", 11)      = 11
+11209 write(1, "\tFILESYSTEM: /dev/mapper/sys0-ro"..., 44) = 44
+11209 write(1, "\tDIRECT: n\n", 11)     = 11
+11209 write(1, "\tRECURSIVE: y\n", 14)  = 14
+11209 write(1, "\tTYPE: dump\n", 12)    = 12
+11209 write(1, "\tUSER: root\n", 12)    = 12
+11209 write(1, "\tHIST: f\n", 9)        = 9
+11209 write(1, "\tPATHNAME_SEPARATOR: /\n", 23) = 23
+11209 write(1, "\tLEVEL: 0\n", 10)      = 10
+11209 write(1, "\tEXTRACT: y\n", 12)    = 12
+11209 write(1, "\tUPDATE: n\n", 11)     = 11
+11209 write(1, "\tREAD_BLOCK_SIZE: 8192\n", 23) = 23
+11209 write(1, "\tWRITE_BLOCK_SIZE: 8192\n", 24) = 24
+11209 write(1, "Backup Attributes: (1568)\n", 26) = 26
+11209 write(1, "\tThe backup type supports a incr"..., 47) = 47
+11209 write(1, "\tThe backup type supports a gene"..., 87) = 87
+11209 write(1, "\tThe backup type supports the ge"..., 109) = 109
+11209 write(1, "\n", 1)                 = 1
+11209 write(1, "FILESYSTEMS: 4\n\n", 16) = 16
+11209 write(1, "FS Physical Name: /dev/mapper/sy"..., 44) = 44
+11209 write(1, "FS Logical Name: /\n", 19) = 19
+11209 write(1, "FS Type: ext4\n", 14)   = 14
+11209 write(1, "FS Avail Size: 3917373440\n", 26) = 26
+11209 write(1, "FS Total Size: 4160151552\n", 26) = 26
+11209 write(1, "FS Used Size: 4108251136\n", 25) = 25
+11209 write(1, "FS Total Inodes: 524288\n", 24) = 24
+11209 write(1, "FS Used Inodes: 106033\n", 23) = 23
+11209 write(1, "FS Environment variables:\n", 26) = 26
+11209 write(1, "\tTYPE: ext4\n", 12)    = 12
+11209 write(1, "\tAVAILABLE_BACKUP: dump\n", 24) = 24
+11209 write(1, "\tAVAILABLE_RECOVERY: dump\n", 26) = 26
+11209 write(1, "\tLOCAL: y\n", 10)      = 10
+11209 write(1, "\n", 1)                 = 1
+11209 write(1, "FS Physical Name: /dev/mapper/sy"..., 40) = 40
+11209 write(1, "FS Logical Name: /home\n", 23) = 23
+11209 write(1, "FS Type: ext4\n", 14)   = 14
+11209 write(1, "FS Avail Size: 3323703296\n", 26) = 26
+11209 write(1, "FS Total Size: 4227530752\n", 26) = 26
+11209 write(1, "FS Used Size: 689082368\n", 24) = 24
+11209 write(1, "FS Total Inodes: 262144\n", 24) = 24
+11209 write(1, "FS Used Inodes: 5973\n", 21) = 21
+11209 write(1, "FS Environment variables:\n", 26) = 26
+11209 write(1, "\tTYPE: ext4\n", 12)    = 12
+11209 write(1, "\tAVAILABLE_BACKUP: dump\n", 24) = 24
+11209 write(1, "\tAVAILABLE_RECOVERY: dump\n", 26) = 26
+11209 write(1, "\tLOCAL: y\n", 10)      = 10
+11209 write(1, "\n", 1)                 = 1
+11209 write(1, "FS Physical Name: /dev/mapper/sy"..., 49) = 49
+11209 write(1, "FS Logical Name: /mnt/root-overl"..., 35) = 35
+11209 write(1, "FS Type: ext3\n", 14)   = 14
+11209 write(1, "FS Avail Size: 1930891264\n", 26) = 26
+11209 write(1, "FS Total Size: 3957977088\n", 26) = 26
+11209 write(1, "FS Used Size: 953344000\n", 24) = 24
+11209 write(1, "FS Total Inodes: 1310720\n", 25) = 25
+11209 write(1, "FS Used Inodes: 27915\n", 22) = 22
+11209 write(1, "FS Environment variables:\n", 26) = 26
+11209 write(1, "\tTYPE: ext3\n", 12)    = 12
+11209 write(1, "\tAVAILABLE_BACKUP: dump\n", 24) = 24
+11209 write(1, "\tAVAILABLE_RECOVERY: dump\n", 26) = 26
+11209 write(1, "\tLOCAL: y\n", 10)      = 10
+11209 write(1, "\n", 1)                 = 1
+11209 write(1, "FS Physical Name: /dev/mapper/sy"..., 42) = 42
+11209 write(1, "FS Logical Name: /var/lib/libvir"..., 41) = 41
+11209 write(1, "FS Type: ext4\n", 14)   = 14
+11209 write(1, "FS Avail Size: 2261196800\n", 26) = 26
+11209 write(1, "FS Total Size: 1305079808\n", 26) = 26
+11209 write(1, "FS Used Size: 654495744\n", 24) = 24
+11209 write(1, "FS Total Inodes: 3276800\n", 25) = 25
+11209 write(1, "FS Used Inodes: 21\n", 19) = 19
+11209 write(1, "FS Environment variables:\n", 26) = 26
+11209 write(1, "\tTYPE: ext4\n", 12)    = 12
+11209 write(1, "\tAVAILABLE_BACKUP: dump\n", 24) = 24
+11209 write(1, "\tAVAILABLE_RECOVERY: dump\n", 26) = 26
+11209 write(1, "\tLOCAL: y\n", 10)      = 10
+11209 write(1, "\n", 1)                 = 1
+11209 getsockname(3, {sa_family=AF_INET, sin_port=htons(49444), sin_addr=inet_addr("127.0.0.1")}, [16]) = 0
+11209 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+11209 setsockopt(4, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10001), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10002), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10003), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10004), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10005), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10006), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10007), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10008), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EADDRINUSE (Address already in use)
+11209 bind(4, {sa_family=AF_INET, sin_port=htons(10009), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+11209 listen(4, 1)                      = 0
+11209 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f319f48ea90) = 11211
+11209 rt_sigaction(SIGCHLD, {SIG_IGN, [CHLD], SA_RESTORER|SA_RESTART, 0x3fee232920},  <unfinished ...>
+11211 set_robust_list(0x7f319f48eaa0, 0x18 <unfinished ...>
+11209 <... rt_sigaction resumed> {SIG_DFL, [], 0}, 8) = 0
+11211 <... set_robust_list resumed> )   = 0
+11209 close(4 <unfinished ...>
+11211 close(3 <unfinished ...>
+11209 <... close resumed> )             = 0
+11211 <... close resumed> )             = 0
+11209 sendto(3, "\200\0\0,\0\0\0\10P\356\336>\0\0\0\0\0\0\4\n\0\0\0\0\0\0\0\0\0\0\0\1"..., 48, MSG_NOSIGNAL, NULL, 0 <unfinished ...>
+11211 rt_sigaction(SIGALRM, {0x404730, [ALRM], SA_RESTORER|SA_RESTART, 0x3fee232920},  <unfinished ...>
+11209 <... sendto resumed> )            = 48
+11211 <... rt_sigaction resumed> {SIG_DFL, [], 0}, 8) = 0
+11209 recvfrom(3,  <unfinished ...>
+11211 pause( <unfinished ...>
+11209 <... recvfrom resumed> "\200\0\0\34\0\0\0\tP\356\336>\0\0\0\1\0\0\4\n\0\0\0\10\0\0\0\0\0\0\0\0", 4000, 0, NULL, NULL) = 32
+11209 kill(11211, SIGALRM <unfinished ...>
+11211 <... pause resumed> )             = ? ERESTARTNOHAND (To be restarted)
+11209 <... kill resumed> )              = 0
+11211 --- SIGALRM (Alarm clock) @ 0 (0) ---
+11209 sendto(3, "\200\0\0X\0\0\0\tP\356\336>\0\0\0\0\0\0\4\1\0\0\0\0\0\0\0\0\0\0\0\4"..., 92, MSG_NOSIGNAL, NULL, 0 <unfinished ...>
+11211 rt_sigreturn(0xe <unfinished ...>
+11209 <... sendto resumed> )            = 92
+11211 <... rt_sigreturn resumed> )      = -1 EINTR (Interrupted system call)
+11209 recvfrom(3,  <unfinished ...>
+11211 rt_sigaction(SIGALRM, {SIG_DFL, [ALRM], SA_RESTORER|SA_RESTART, 0x3fee232920},  <unfinished ...>
+11209 <... recvfrom resumed> "\200\0\0\34\0\0\0\nP\356\336>\0\0\0\1\0\0\4\1\0\0\0\t\0\0\0\0\0\0\0\0", 4000, 0, NULL, NULL) = 32
+11211 <... rt_sigaction resumed> {0x404730, [ALRM], SA_RESTORER|SA_RESTART, 0x3fee232920}, 8) = 0
+11209 rt_sigprocmask(SIG_BLOCK, [CHLD],  <unfinished ...>
+11211 write(1, "WAKING UP\n", 10 <unfinished ...>
+11209 <... rt_sigprocmask resumed> [], 8) = 0
+11211 <... write resumed> )             = 10
+11209 rt_sigaction(SIGCHLD, NULL,  <unfinished ...>
+11211 write(1, "WAITING FOR READ\n", 17 <unfinished ...>
+11209 <... rt_sigaction resumed> {SIG_IGN, [CHLD], SA_RESTORER|SA_RESTART, 0x3fee232920}, 8) = 0
+11211 <... write resumed> )             = 17
+11209 nanosleep({2, 0},  <unfinished ...>
+11211 read(4, 0x2194970, 4096)          = -1 ENOTCONN (Transport endpoint is not connected)
+11211 exit_group(0)                     = ?
+11209 <... nanosleep resumed> 0x7fff188d4fb0) = 0
+11209 rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+11209 write(1, "Got 0 bytes of backup data\n", 27) = 27
+11209 write(1, "success\n", 8)          = 8
+11209 write(1, "Issuing disconnect\n", 19) = 19
+11209 kill(11211, SIGTERM)              = -1 ESRCH (No such process)
+11209 sendto(3, "\200\0\0\30\0\0\0\nP\356\336@\0\0\0\0\0\0\t\2\0\0\0\0\0\0\0\0", 28, MSG_NOSIGNAL, NULL, 0) = 28
+11209 shutdown(3, 2 /* send and receive */) = 0
+11209 close(3)                          = 0
+11209 shutdown(4294967295, 2 /* send and receive */) = -1 EBADF (Bad file descriptor)
+11209 close(4294967295)                 = -1 EBADF (Bad file descriptor)
+11209 munmap(0x7f319f8da000, 304)       = 0
+11209 exit_group(0)                     = ?

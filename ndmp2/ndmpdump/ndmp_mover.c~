@@ -1,0 +1,111 @@
+#include "common.h"
+#include "ndmp_common.h"
+#include "ndmp_mover.h"
+
+#include <signal.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+static bool ndmp_mover_read(ndmp_session *sess);
+
+bool ndmp_mover_create(
+      ndmp_session *sess,
+      char *host,
+      char *port)
+{
+   assert(sess);
+   assert(host);
+   assert(port);
+
+   int rc;
+   int yes = 1;
+
+   struct addrinfo *ai, hints;
+   memset(&hints, 0, sizeof(hints));
+
+   /* Create the state data */
+   mover_state *state = NULL;
+   state = malloc(sizeof(*state));
+   if (!state)
+	SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+   memset(state, 0, sizeof(*state));
+
+   /* Create listening socket */
+   hints.ai_flags = AI_PASSIVE;
+   rc = getaddrinfo(host, port, &hints, &ai);
+   if (rc)
+     SET_ERR(sess, MAJ_LOOKUP_ERROR, rc, fail);
+
+   state->fd = socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
+   if (state->fd < 0)
+     SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+   if (setsockopt(state->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0)
+     SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+   if (bind(state->fd, ai->ai_addr, ai->ai_addrlen) < 0)
+     SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+   if (listen(state->fd, 1) > -1)
+     SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+
+   freeaddrinfo(ai);
+   sess->mover = state;
+   if (!ndmp_dispatcher_add_fd(sess, sess->mover->fd, NDMP_IN, ndmp_mover_read))
+     goto fail;
+   strncpy(sess->moverhost, host, 256);
+   strncpy(sess->moverport, port, 32);
+   return true;
+   
+fail:
+   if (ai)
+      freeaddrinfo(ai);
+
+   if (state) {
+      shutdown(state->fd, SHUT_RDWR);
+      close(state->fd);
+      sess->mover = NULL;
+      free(state);
+   }
+   return false;
+}
+
+
+void ndmp_mover_destroy(
+      ndmp_session *sess)
+{
+   if (!sess) return;
+        if (!sess->mover) return;
+
+   if (sess->mover->fd > -1) {
+     shutdown(sess->mover->fd, SHUT_RDWR);
+     close(sess->mover->fd);
+   }
+
+   free(sess->mover);
+        sess->mover = NULL;
+   return;   
+}
+
+
+static bool ndmp_mover_read(
+      ndmp_session *sess)
+{
+   assert(sess);
+   assert(sess->mover);
+
+   mover_state *state = sess->mover;
+   char buf[8192];
+   memset(buf, 0, 8192);
+   int rc = -1;
+   int clifd = -1;
+
+   /* Read the contents of the data, at the moment, 
+    * dont save or so anyting particular with it    */
+   if ((rc = read(clifd, buf, 8192)) < 0) 
+      SET_ERR(sess, MAJ_SYSTEM_ERROR, errno, fail);
+
+   printf("Read %d bytes on %d\n", rc, clifd);
+
+   return true;
+fail:
+   close(clifd);
+   return false;
+}

@@ -1,0 +1,168 @@
+#include "common.h"
+#include "events.h"
+#include "timer.h"
+
+#include <sys/epoll.h>
+
+static int epoll = -1;
+int numevents = -1;
+
+struct callback {
+  int fd;
+  int (*cb)(void *data);
+  void *data;
+  int data_len;
+};
+
+struct callback *callbacks[EVENT_MAX];
+
+void event_init(
+  void)
+{
+  memset(callbacks, 0, sizeof(callbacks));
+  numevents = 0;
+  if ((epoll = epoll_create(EVENT_MAX/3)) < 0) {
+    perror("Cannot start event manager");
+    exit(1);
+  }
+  return;
+}
+
+
+int event_add(
+  int fd,
+  int mode,
+  int (*event_cb)(void *),
+  void *data,
+  int datalen)
+{
+  assert(fd >= 0);
+  assert(mode == EPOLLIN | EPOLLOUT);
+  assert(event_cb);
+  assert(datalen >= 0);
+
+  int eno = -1;
+  void *newdata = NULL;
+  struct callback *callb = NULL;
+
+  callb = malloc(sizeof(*callb));
+  if (!callb)
+    goto fail;
+
+  if (data) {
+    newdata = malloc(datalen);
+    if (!newdata)
+      goto fail;
+
+    memcpy(newdata, data, datalen);
+  }
+
+  /* Assign the callback handler */
+  callb->fd = fd; 
+  callb->cb = event_cb; 
+  callb->data = newdata;
+  callb->data_len = datalen;
+
+  struct epoll_event ev;
+  ev.events = mode;
+  ev.data.ptr = callb;
+
+  if (epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &ev) < 0)
+    goto fail;
+  numevents++;
+  callbacks[fd] = callb;
+
+  return 1;
+
+fail:
+  eno = errno;
+  if (callb)
+    free(callb);
+  if (newdata)
+    free(newdata);
+  errno = eno;
+  return -1;
+}
+
+
+int event_del(
+  int fd)
+{
+  struct callback *cb = NULL;
+
+  if (fd >= EVENT_MAX) {
+    errno = E2BIG;
+    return -1;
+  }
+
+  if (epoll_ctl(epoll, EPOLL_CTL_DEL, fd, NULL) < 0)
+    return -1;
+  numevents--;
+
+  /* Find the callback in our list and free it */
+  cb = callbacks[fd];
+  if (!cb)
+    return -1;
+
+  if (cb->data)
+    free(cb->data);
+  free(cb);
+  callbacks[fd] = NULL;
+  return 1;
+}
+
+
+
+int event_loop(
+  void)
+{
+  int rc, i;
+  struct epoll_event events[EVENT_MAX];
+  struct epoll_event *ev = NULL;
+  struct callback *cb = NULL;
+  memset(events, 0, sizeof(events));
+
+  if (numevents <= 0) {
+    errno = EINVAL;
+    return -1;
+  }
+
+  while (numevents) {
+    if ((rc = epoll_wait(epoll, events, EVENT_MAX, -1)) < 0) {
+      if (rc == EINTR) {
+        continue;
+      }
+      else {
+        return -1;
+      }
+    }
+
+    for (i=0; i < rc; i++) {
+      ev = &events[i];
+      cb = ev->data.ptr;
+      assert(cb->cb);
+
+      if (ev->events & EPOLLERR || ev->events & EPOLLHUP) {
+        if (event_del(cb->fd) < 0) {
+          perror("Error deleting errored event");
+        }
+        continue;
+      }
+
+      if (ev->events & EPOLLIN || ev->events & EPOLLOUT) {
+        if (cb->cb(cb->data) < 0) {
+          perror("Error executing callback");
+          if (event_del(cb->fd) < 0) {
+            perror("Error deleting errored event");
+          }
+        }
+        else {
+          printf("Running callback!\n");
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+

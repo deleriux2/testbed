@@ -1,0 +1,291 @@
+#include "common.h"
+#include "config.h"
+#include "events.h"
+#include "netlink_if.h"
+#include "nflog.h"
+#include "multicast.h"
+
+#include <grp.h>
+#include <pwd.h>
+#include <netdb.h>
+#include <libnetfilter_log/libnetfilter_log.h>
+
+extern struct config *configuration;
+
+static struct nflog_handle *nfh = NULL;
+static int nflogfd = -1;
+static int nflog_g_idx;
+static struct nflog_g_handle *groups[NFLOG_GROUPS_MAX];
+
+
+
+static int nflog_callback_handler(
+  struct nflog_g_handle *g,
+  struct nfgenmsg *nfmsg,
+  struct nflog_data *nfld,
+  void *data)
+{
+  struct nflog_log *log = malloc(sizeof(*log));
+  struct group *grp = NULL;
+  struct passwd *pwd = NULL;
+  struct nfulnl_msg_packet_hw *lladdr = NULL;
+  struct timeval tv = {0,0};
+  struct protoent *proto = NULL;
+  int rc;
+  int saddr;
+  int daddr;
+  void *payload;
+  char *tmp = NULL;
+  int gid = -1;
+  int uid = -1;
+  int dev = 0;
+  char protocol;
+  char typecode;
+
+  if (!log)
+    return -1;
+  memset(log, 0, sizeof(log));
+
+  /* group */
+  gid = nflog_get_gid(nfld, &gid);
+  if (gid < 0) {
+    log->group = strdup("<kernel>");
+  }
+  else {
+    grp = getgrgid(gid);
+    log->group = strdup(grp->gr_name);
+  }
+
+  /* user */
+  uid = nflog_get_uid(nfld, &uid);
+  if (uid < 0) {
+    log->user = strdup("<kernel>");
+  }
+  else {
+    pwd = getpwuid(uid);
+    log->user = strdup(pwd->pw_name);
+  }
+
+  /* payload */
+  if ((rc = nflog_get_payload(nfld, &tmp)) > 0) {
+    log->payload = strdup(tmp);
+    log->payloadlen = rc;
+  }
+  
+  /* llink layer address */
+  lladdr = nflog_get_packet_hw(nfld);
+  if (lladdr)
+    log->hwaddr = strdup(lladdr->hw_addr);
+  else
+    log->hwaddr = strdup("\x00\x00\x00\x00\x00\x00\x00\x00");
+
+  /* prefix */
+  tmp = nflog_get_prefix(nfld);
+  log->prefix = strdup(tmp);
+
+  /* mark */
+  log->mark = nflog_get_nfmark(nfld);
+
+  /* timestamp */
+  if ((rc = nflog_get_timestamp(nfld, &tv)) == 0) {
+    log->ts.tv_sec = tv.tv_sec;
+    log->ts.tv_usec = tv.tv_usec;
+  }
+
+  /* indevs */
+  dev = nflog_get_indev(nfld);
+  if (dev > 0)
+   log->indev = strdup(netlink_cache_get_name(dev));
+  else
+   log->indev = strdup("not_set");
+
+  dev = nflog_get_physindev(nfld);
+  if (dev > 0)
+    log->physindev = strdup(netlink_cache_get_name(dev));
+  else
+   log->physindev = strdup("not_set");
+
+  /* outdevs */
+  dev = nflog_get_outdev(nfld);
+  if (dev > 0)
+    log->outdev = strdup(netlink_cache_get_name(dev));
+  else
+   log->outdev = strdup("not_set");
+
+  dev = nflog_get_physoutdev(nfld);
+  if (dev > 0)
+    log->physoutdev = strdup(netlink_cache_get_name(dev));
+  else
+   log->physoutdev = strdup("not_set");
+
+  payload = log->payload;
+  /* The IP packet size */
+  log->pktsz = ntohs(*((unsigned short *)payload+1));
+
+  /* TTL */
+  char ttl = ((char *)payload)[8];
+  log->ttl = ((char *)payload)[8];
+
+  /* Protocol */
+  protocol =  ((char *)payload)[9];
+  proto = getprotobynumber(protocol);
+  log->protocol = strdup(proto->p_name);
+
+  /* Source Address */
+  saddr = ((unsigned int *)payload)[3];
+  log->srcaddr = malloc(16);
+  inet_ntop(AF_INET, &saddr, log->srcaddr, 16);
+
+  /* Dest Address */
+  daddr = ((unsigned int *)payload)[4];
+  log->dstaddr = malloc(16);
+  inet_ntop(AF_INET, &saddr, log->dstaddr, 16);
+
+  /* Shift our protocol pointer by hdr bytes */
+  int hdr = ( (((char *)payload)[0]) & 0x0F) * 4;
+  payload = ((char *)payload+hdr);
+
+  /* Protocol Specific data */
+  /* icmp */
+  if (protocol == 1) {
+    char typecode = ((char *)payload)[0];
+    log->pdata.protocol_data_u.icmp.code = typecode >> 4;
+    log->pdata.protocol_data_u.icmp.type = typecode & 0xF;
+    log->pdata.protocol = NFLOG_PROTO_ICMP;
+  }
+  else if (protocol == 6) {
+    log->pdata.protocol_data_u.tcp.srcport = ntohs( ((unsigned short *)payload)[0] );
+    log->pdata.protocol_data_u.tcp.dstport = ntohs( ((unsigned short *)payload)[1] );
+    log->pdata.protocol = NFLOG_PROTO_TCP;
+  }
+  else if (protocol == 17) {
+    log->pdata.protocol_data_u.udp.srcport = ntohs( ((unsigned short *)payload)[0] );
+    log->pdata.protocol_data_u.udp.dstport = ntohs( ((unsigned short *)payload)[1] );
+    log->pdata.protocol = NFLOG_PROTO_UDP;
+  }
+  else {
+    free(log);
+    return -1;
+  }
+
+  if (multicast_send((struct config *)data, log) < 0) {
+    free(log);
+    return -1;
+  }
+
+/*
+  printf("DstAddr=%s SrcAddr=%s Protocol=%s TTL=%d PktSz=%d Timestamp=%d.%d, User=%s, Group=%s, Indev=%s, Outdev=%s, HWAddr=%s, payloadlen=%d ",
+    log.dstaddr, log.srcaddr, log.protocol, log.ttl, log.pktsz, log.timestamp.tv_sec, log.timestamp.tv_usec, log.user, log.group,
+    log.indev, log.outdev, log.hwaddr, log.payloadlen);
+
+  if (protocol == 1) {
+    printf("Type=%d Code=%d\n", log.protocol_hdrs.icmp.type, log.protocol_hdrs.icmp.code);
+  }
+  else if (protocol == 6) {
+    printf("SrcPort=%d, DstPort=%d\n", log.protocol_hdrs.tcp.srcport, log.protocol_hdrs.tcp.dstport);
+  }
+  else if (protocol == 17) {
+    printf("SrcPort=%d, DstPort=%d\n", log.protocol_hdrs.udp.srcport, log.protocol_hdrs.udp.dstport);
+  }
+*/
+
+  return 1;
+}
+
+
+
+static int nflog_bind_groups(
+  void)
+{
+  int eno, mode;
+  struct config *tmp;
+  for (tmp = configuration; tmp != NULL; tmp = tmp->next) {
+    groups[nflog_g_idx] = nflog_bind_group(nfh, tmp->group);
+    if (!groups[nflog_g_idx])
+      goto fail;
+
+    if (nflog_set_mode(groups[nflog_g_idx],  NFULNL_COPY_PACKET, tmp->payloadsz) < 0)
+      goto fail;
+
+    nflog_callback_register(groups[nflog_g_idx], &nflog_callback_handler, tmp);
+    nflog_g_idx++;
+  }
+
+  return nflog_g_idx+1;
+
+fail:
+  eno = errno;
+  nflog_destroy();
+  errno = eno;
+  return -1;
+}
+
+
+
+void nflog_destroy(
+  void)
+{
+  int i;
+  for (i=0; i < NFLOG_GROUPS_MAX; i++) {
+    if (groups[i])
+      nflog_unbind_group(groups[i]);
+  }
+  if (nfh)
+    nflog_close(nfh);
+  nfh = NULL;
+  nflogfd = -1;
+  return;
+}
+
+
+
+int nflog_start(
+  void)
+{
+  int eno;
+  nflog_g_idx = 0;
+  memset(groups, 0, sizeof(*groups));
+
+  nfh = nflog_open();
+  if (!nfh)
+    goto fail;
+
+  if (nflog_bind_pf(nfh, AF_INET) < 0)
+    goto fail;
+
+  if (nflog_bind_groups() < 0)
+    goto fail;
+
+  nflogfd = nflog_fd(nfh);
+  if (event_add(nflogfd, EPOLLIN, nflog_recv, &nflogfd, sizeof(nflogfd)) < 0)
+    goto fail;
+
+  return 1;
+
+fail:
+  eno = errno;
+  if (nflogfd > -1)
+    event_del(nflogfd);
+  nflog_destroy();
+  errno = eno;
+  return -1;
+}
+
+
+
+int nflog_recv(void *data)
+{
+  int fd = *((int *)data);
+  int rc;
+  char buf[4096];
+  memset(buf, 0, sizeof(buf));
+
+  rc = recv(fd, buf, sizeof(buf), 0);
+  if (rc < 0) {
+    return -1;
+  }
+  else {
+    nflog_handle_packet(nfh, buf, rc);
+  }
+  return 1;
+}

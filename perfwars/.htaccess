@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteRule goldilox.php - [L]
+RewriteRule .* goldilox.php/$1

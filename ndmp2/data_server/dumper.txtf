@@ -1,0 +1,4 @@
+bind(3, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
+bind(3, {sa_family=AF_INET, sin_port=htons(10000), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+--- SIGINT (Interrupt) @ 0 (0) ---
++++ killed by SIGINT +++

@@ -1,0 +1,8 @@
+[random-writers]
+ioengine=libaio
+iodepth=64
+rw=randrw
+bs=512
+direct=1
+size=4G
+numjobs=1

@@ -1,0 +1,119 @@
+%{
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include "config.h"
+#include "netlink_if.h"
+#include "multicast.h"
+
+extern struct config *configuration;
+struct config *cur = NULL;
+ 
+void yyerror(const char *str)
+{
+        fprintf(stderr,"error: %s\n",str);
+}
+
+int yywrap()
+{
+        return 1;
+} 
+
+%}
+
+%union {
+  int number;
+  char *string;
+  char boolean;
+}
+
+%token <string> WORD
+%token <number> NUMBER;
+
+%token NFLOG OBRACE CBRACE GROUP EQUALS COLON LOCALADDRESS
+%token MULTICAST WORD INTERFACE PAYLOAD PAYLOADSZ
+
+%%
+nflogs: nflogentry
+      | nflogentry nflogs
+      ;
+
+
+nflogentry: NFLOG WORD OBRACE nflogstatements CBRACE
+{
+
+  if (!cur)
+    YYABORT;
+
+  strncpy(cur->name, $2, 256);
+  free($2);
+  cur = NULL;
+}
+;
+
+nflogstatements: groupstatement nflogstatements
+               | multicaststatement nflogstatements
+               | interfacestatement nflogstatements
+               | payloadszstatement nflogstatements
+               | localaddressstatement nflogstatements
+               | multicaststatement
+               | interfacestatement
+               | groupstatement
+               | payloadszstatement
+               | localaddressstatement
+               ;
+
+groupstatement: GROUP EQUALS NUMBER
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  if ($3 < 0 || $3 > UINT16_MAX)
+    YYABORT;
+  cur->group = $3;
+}
+;
+
+multicaststatement: MULTICAST EQUALS WORD
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  if (!inet_pton(AF_INET, $3, &cur->mcast_addr.sin_addr.s_addr))
+    YYABORT;
+  free($3);
+}
+                  | MULTICAST EQUALS WORD COLON NUMBER
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  if (!inet_pton(AF_INET, $3, &cur->mcast_addr.sin_addr.s_addr))
+    YYABORT;
+  cur->mcast_addr.sin_port = htons($5);
+  free($3);
+}
+;
+
+payloadszstatement: PAYLOADSZ EQUALS NUMBER
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  if ($3 < 68 || $3 > 65535)
+    YYABORT;
+  cur->payloadsz = $3;
+}
+;
+
+interfacestatement: INTERFACE EQUALS WORD
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  strncpy(cur->interface, $3, 128);
+  free($3);
+  if ((cur->iface_idx = netlink_cache_get_idx_from_name(cur->interface)) < 0)
+    YYABORT;
+}
+;
+
+localaddressstatement: LOCALADDRESS EQUALS WORD
+{
+  if (!cur) cur = config_new(); if (!cur) YYABORT;
+  if (!inet_pton(AF_INET, $3, &cur->local_addr.sin_addr.s_addr))
+    YYABORT;
+  free($3);
+}
+;
+%%

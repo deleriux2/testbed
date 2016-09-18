@@ -1,0 +1,16 @@
+#ifndef _NDMP_MOVER_H
+#define _NDMP_MOVER_H
+#include "ndmp.h"
+#include "ndmp_error.h"
+
+struct mover_state {
+   int fd;
+   enum ndmp_data_state state;
+};
+
+typedef struct mover_state mover_state;
+
+bool ndmp_mover_create(ndmp_session *sess, char *host, char *port);
+void ndmp_mover_destroy(ndmp_session *sess);
+
+#endif

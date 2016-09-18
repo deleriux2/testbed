@@ -1,0 +1,513 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sysexits.h>
+#include <err.h>
+#include <errno.h>
+#include <string.h>
+#include <pthread.h>
+#include <limits.h>
+#include <signal.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <libnetfilter_log/libnetfilter_log.h>
+#include <systemd/sd-journal.h>
+#include <pcre.h>
+#include <cap-ng.h>
+
+#include "queue.h"
+
+#define QUEUE_SIZE 32000
+#define BUFSZ 32768
+
+static int ppid = -1;
+static pcre *hostregex = NULL;
+static pcre *urlregex = NULL;
+static pcre **exclude_filters = NULL;
+static int exclude_num;
+char *filter_file = NULL;
+
+static pthread_rwlock_t filterlock = PTHREAD_RWLOCK_INITIALIZER;
+
+struct queue_data {
+  struct timeval timestamp;
+  char *buf;
+  int buflen;
+};
+
+void build_pcre(
+    void)
+{
+  int ecode, eoffset;
+  const char *error;
+  hostregex = pcre_compile2("Host: (\\S+)\r\n", PCRE_CASELESS, &ecode, &error, &eoffset, NULL);
+  if (!hostregex) {
+    sd_journal_print(LOG_ERR, "Host PCRE compilation failed");
+    exit(EX_SOFTWARE);
+  }
+
+  urlregex = pcre_compile2("(GET|POST) (\\S+) HTTP/1.1\r\n", PCRE_CASELESS, &ecode, &error, &eoffset, NULL);
+  if (!urlregex) {
+    sd_journal_print(LOG_ERR, "Host PCRE compilation failed");
+    exit(EX_SOFTWARE);
+  }
+}
+
+void signal_filters(
+    int sig)
+{
+  int rc;
+  rc = load_filters();
+  if (rc < 0)
+    sd_journal_print(LOG_WARNING, "Failed to reload filters");
+  else
+    sd_journal_print(LOG_WARNING, "Reloaded filters file %s: %d filters", filter_file, rc);
+}
+
+int load_filters(
+    void)
+{
+  pcre **new_filters;
+  char max_filter[4096];
+  int lines=0, lines2=0;
+  int sz;
+  int i, failed = 0;
+  int errorcode, erroffset;
+  const char *pcreerror;
+  char strerr[1024];
+
+  /* Do nothing in the event that filters is null */
+  if (filter_file == NULL)
+    return 0;
+
+  FILE *filter = fopen(filter_file, "r");
+  if (!filter) {
+    sd_journal_print(LOG_ERR, "Cannot open filters at %s: %s", filter_file, 
+                                           strerror_r(errno, strerr, 1024));
+    return -1;
+  }
+
+  /* Count the number of lines in the file */
+  while(!feof(filter)) {
+    if (fgets(max_filter, 4096, filter) == NULL)
+      continue;
+    lines++;
+  }
+
+  new_filters = calloc(sizeof(pcre*), lines);
+  rewind(filter);
+  for (i=0; i < lines; i++) {
+    lines2++;
+    if (fgets(max_filter, 4096, filter) == NULL)
+      break;
+
+    sz = strlen(max_filter);
+    if (sz >= 4095) {
+       sd_journal_print(LOG_WARNING, "Filter entry is too long");
+       goto fail;
+    }
+
+    /* Trim the newline */
+    if (max_filter[sz-1] == '\n')
+      max_filter[sz-1] = 0;
+
+    /* Attempt to compile the expression */
+    new_filters[i] = pcre_compile2(max_filter,
+                     0, &errorcode, &pcreerror,
+                     &erroffset, NULL);
+    if (new_filters[i] == NULL) {
+      sd_journal_print(LOG_WARNING, "Filter PCRE failed at line %d, character %d: %s",
+            i, erroffset, pcreerror);
+      failed = 1;
+    }
+  }
+
+  if (failed)
+    return -1;
+
+  if (lines != lines2) {
+    sd_journal_perror("Filter file truncated as we read it!");
+    return -1;
+  }
+
+  /* Arrange replacement of live filters */
+  pthread_rwlock_wrlock(&filterlock);
+  free(exclude_filters);
+  exclude_filters = new_filters;
+  exclude_num = lines; 
+  pthread_rwlock_unlock(&filterlock);
+  fclose(filter);
+
+  return lines;
+
+fail:
+  if (filter)
+    fclose(filter);
+  if (new_filters)
+    free(new_filters);
+  return -1;
+}
+
+int queue_push(
+    struct nflog_g_handle *group,
+    struct nfgenmsg *nfmsg,
+    struct nflog_data *nfdata,
+    void *udata)
+{
+  char *buf1 = alloca(1500);
+  struct queue_data *qd = NULL;
+  int buflen = 0;
+  queue_t queue = (queue_t)udata;
+
+  /* Obtain the packet data */ 	
+  buflen = nflog_get_payload(nfdata, &buf1);
+  if ((qd = malloc(sizeof(*qd))) == NULL) {
+    sd_journal_perror("Cannot allocate memory for queue buf");
+    goto fail;
+  }
+
+  qd->buflen = buflen;
+  gettimeofday(&qd->timestamp, NULL);
+  qd->buf = NULL;
+
+  if ((qd->buf = malloc(qd->buflen)) == NULL) {
+    sd_journal_perror("Cannot allocate memory for queue buf data");
+    goto fail;
+  }
+  memcpy(qd->buf, buf1, qd->buflen);
+
+  /* Push into queue */
+  queue_put(queue, qd);
+  return 0;
+
+fail:
+  if (qd && qd->buf)
+    free(qd->buf);
+  if (qd)
+    free(qd);
+  return 0;
+}
+
+
+int packet_get_s_addr(
+    char *buf,
+    char addr[INET_ADDRSTRLEN])
+{
+  if (inet_ntop(AF_INET, &buf[12], addr, INET_ADDRSTRLEN) == NULL) {
+    sd_journal_perror("Could not obtain source addres for packet");
+    return -1;
+  }
+
+  return 0;
+}
+
+
+int packet_get_d_addr(
+    char *buf,
+    char addr[INET_ADDRSTRLEN])
+{
+  if (inet_ntop(AF_INET, &buf[16], addr, INET_ADDRSTRLEN) == NULL) {
+    sd_journal_perror("Could not obtain destination addres for packet");
+    return -1;
+  }
+
+  return 0;
+}
+
+
+/* Offsets away TCP and IP payloads */
+int packet_get_payload(
+    char *buf,
+    char **p)
+{
+  int ihl = (buf[0] & 0x0f) * 4;
+  int tcp = ((buf[ihl+12] & 0xf0) >> 4) * 4;
+  *p = buf+ihl+tcp;
+  return ihl+tcp;
+}
+
+
+int packet_get_host(
+    char *buf,
+    int payloadlen,
+    char *dst,
+    int dstlen)
+{
+  int matched = -1;
+  int ovector[6];
+
+  matched = pcre_exec(hostregex, NULL, buf, payloadlen, 0, 0, ovector, 6);
+  if (matched <= 0) {
+    return -1;
+  }
+
+  if (pcre_copy_substring(buf, ovector, matched, 1, dst, dstlen) < 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int packet_get_url(
+    char *buf,
+    int payloadlen,
+    char *dst,
+    int dstlen)
+{
+  int matched = -1;
+  int ovector[9];
+
+  matched = pcre_exec(urlregex, NULL, buf, payloadlen, 0, 0, ovector, 9);
+  if (matched <= 0) {
+    return -1;
+  }
+
+  if (pcre_copy_substring(buf, ovector, matched, 2, dst, dstlen) < 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+
+/* Iterates filters, true if a url matches an exclusion */
+int packet_exclude_url(
+    const char *url) {
+  int i, rc;
+  int urllen = strlen(url);
+  int found = 0;
+
+  pthread_rwlock_rdlock(&filterlock);
+  if (exclude_num == 0) {
+    pthread_rwlock_unlock(&filterlock);
+    return 0;
+  }
+
+  for (i=0; i < exclude_num; i++) {
+    rc = pcre_exec(exclude_filters[i], NULL, url, urllen, 0, 0, NULL, 0);
+    if (rc >= 0) {
+      found = 1;
+      break;
+    }
+    else if (rc < -1) {
+      sd_journal_print(LOG_WARNING, "An exclude filter returned %d on pcre_exec", rc);
+      continue;
+    }
+    else
+      continue;
+  }
+  pthread_rwlock_unlock(&filterlock);
+
+  return found;
+}
+
+
+/* Handle the packets coming in */
+void * handle_packets(
+  void *data)
+{
+  queue_t queue = (queue_t)data;
+  struct queue_data *qd;
+  char saddr[INET_ADDRSTRLEN];
+  char daddr[INET_ADDRSTRLEN];
+  char *payload;
+  struct tm stime;
+  char arrival[64];
+  char host[128];
+  char url[1300];
+  char fullurl[1300+128];
+  int payloadlen = 0;
+
+  while (1) {
+    qd = queue_get(queue);
+    if (qd)
+      packet_get_s_addr(qd->buf, saddr);
+      packet_get_d_addr(qd->buf, daddr);
+      payloadlen = qd->buflen - packet_get_payload(qd->buf, &payload);
+      if (payloadlen <= 0)
+        goto end;
+
+      localtime_r(&qd->timestamp.tv_sec, &stime);
+      strftime(arrival, 64, "%Y-%m-%d %H:%M:%S", &stime);
+      if (packet_get_host(payload, payloadlen, host, 128) < 0)
+        goto end;
+      if (packet_get_url(payload, payloadlen, url, 1300) < 0)
+        goto end;
+
+      snprintf(fullurl, 1300+128, "%s%s", host, url);
+      if (packet_exclude_url(fullurl))
+        goto end;
+
+      sd_journal_send("MESSAGE=[%s] http://%s", saddr, fullurl,
+                      "NETLOGGER_HOST=%s", host,
+                      "NETLOGGER_URL=%s", url,
+                      "NETLOGGER_TIMESTAMP=%s.%09d", arrival, qd->timestamp.tv_usec,
+                      "NETLOGGER_ADDR=%s", saddr,
+                      NULL);
+
+  end:
+      free(qd->buf);
+      free(qd);
+      continue;
+  }
+}
+
+/* Spawn threads */
+int spawn_threads(
+    queue_t queue)
+{
+  int i, rc;
+  int ncpus = sysconf(_SC_NPROCESSORS_ONLN);
+  pthread_t thread;
+
+  for (i=0; i < ncpus; i++) {
+    if ((rc = pthread_create(&thread, NULL, handle_packets, (void *)queue))) {
+      errno = rc;
+      sd_journal_perror("Cannot create thread");
+      exit(EX_OSERR);
+    }
+    if ((rc = pthread_detach(thread))) {
+      errno = rc;
+      sd_journal_perror("Could not detach thread");
+      exit(EX_OSERR);
+    }
+  }
+  return ncpus;
+}
+
+void setup_netlogger_loop(
+    int groupnum,
+    queue_t queue)
+{
+  int sz;
+  int fd = -1;
+  char buf[BUFSZ];
+  /* Setup handle */
+  struct nflog_handle *handle = NULL;
+  struct nflog_g_handle *group = NULL;
+
+  memset(buf, 0, sizeof(buf));
+
+  if ((handle = nflog_open()) == NULL){
+    sd_journal_perror("Could not get netlink handle");
+    exit(EX_OSERR);
+  }
+
+  if (nflog_bind_pf(handle, AF_INET) < 0) {
+    sd_journal_perror("Could not bind netlink handle");
+    exit(EX_OSERR);
+  }
+
+  /* Setup groups */
+  if ((group = nflog_bind_group(handle, groupnum)) == NULL) {
+    sd_journal_perror("Could not bind to group");
+    exit(EX_OSERR);
+  }
+  if (nflog_set_mode(group, NFULNL_COPY_PACKET, 0xffff) < 0) {
+    sd_journal_perror("Could not set group mode");
+    exit(EX_OSERR);
+  }
+  if (nflog_set_nlbufsiz(group, BUFSZ) < 0) {
+    sd_journal_perror("Could not set group buffer size");
+    exit(EX_OSERR);
+  }
+  if (nflog_set_timeout(group, 1500) < 0) {
+    sd_journal_perror("Could not set the group timeout");
+  }
+
+  /* Register the callback */
+  nflog_callback_register(group, &queue_push, (void *)queue);
+  fd = nflog_fd(handle);
+
+  for (;;) {
+    sz = recv(fd, buf, BUFSZ, 0);
+    if (sz < 0 && errno == EINTR)
+      continue;
+    else if (sz < 0)
+      break;
+
+    nflog_handle_packet(handle, buf, sz);
+  }
+}
+
+void set_process_capabilities(
+    void)
+{
+  if (capng_get_caps_process() < 0)
+    sd_journal_perror("Cannot retrieve processes capabilities");
+
+  if (capng_have_capability(CAPNG_EFFECTIVE, CAP_SETPCAP)) {
+    capng_clear(CAPNG_SELECT_BOTH);
+    if (capng_update(CAPNG_ADD, CAPNG_EFFECTIVE|CAPNG_PERMITTED|CAPNG_BOUNDING_SET, CAP_NET_ADMIN) < 0) {
+      sd_journal_perror("Cannot update capabilities");
+      exit(EX_OSERR);
+    }
+    if (capng_apply(CAPNG_SELECT_BOTH) < 0) {
+      sd_journal_perror("Cannot update capabilities");
+      exit(EX_OSERR);
+    }
+    if (capng_lock() < 0) {
+      sd_journal_perror("Cannot lock capabilities");
+      exit(EX_OSERR);
+    }
+  }
+  else {
+     sd_journal_print(LOG_WARNING, "Cannot set own capabilities");
+  }
+}
+
+int main(
+    int argc,
+    char **argv)
+{
+  int groupnum = 0;
+  queue_t queue;
+  struct sigaction act;
+  ppid = getppid();
+
+  memset(&act, 0, sizeof(act));
+
+  set_process_capabilities();
+
+  if (argc < 2) {
+    sd_journal_print(LOG_ERR, "Must pass in a group number");
+    exit(EX_SOFTWARE);
+  }
+
+  /* If we have a filter file, reference it */
+  if (argc == 3) {
+    if (access(argv[2], R_OK) < 0) {
+      sd_journal_print(LOG_ERR, "Cannot access filter file");
+      exit(EX_SOFTWARE);
+    }
+    filter_file = strndup(argv[2], PATH_MAX);
+  }
+
+  groupnum = atoi(argv[1]);
+  if (groupnum < 0 || groupnum > 65535) {
+     sd_journal_print(LOG_ERR, "Must pass a group number between 0 and 65535");
+     exit(EX_SOFTWARE);
+  }
+
+  queue = queue_init(QUEUE_SIZE);
+  if (!queue) {
+    sd_journal_perror("Cannot initialize the queue");
+    exit(EX_OSERR);
+  }
+
+  act.sa_handler = signal_filters;
+  if (sigaction(SIGUSR1, &act, NULL) < 0) {
+    sd_journal_perror("Could not install signal handler");
+    exit(EX_OSERR);
+  }
+
+  build_pcre();
+  spawn_threads(queue);
+
+  if (load_filters() < 0)
+    exit(EX_SOFTWARE);
+
+  setup_netlogger_loop(groupnum, queue);
+  exit(0);
+}

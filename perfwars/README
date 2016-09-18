@@ -1,0 +1,16 @@
+FILES
+
+goldilox.php      -- Contains the actual reference code for the reference solution.
+
+.htaccess         -- Contains a helper file for apache to pass valid URLS to the program.
+
+genfiles_task.py  -- This consistently generates all the static files needed for the test into
+                     a sub-directory called 'static'. This will always generate the same data
+                     for each person.
+
+GETTING STARTED (APACHE)
+1. Deploy the php file somewhere in a document root you are happy to serve from.
+2. Run the python script to generate the static files in the document root.
+3. In the document root create a directory called 'dynamic' and make sure that
+   the user that runs PHP has write access to it.
+4. Setup the apache vhost such that it responds over SSL and over IPv6.

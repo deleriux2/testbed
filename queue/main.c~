@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sysexits.h>
+#include <err.h>
+#include <errno.h>
+#include <pthread.h>
+#include "queue.h"
+
+void * consume(
+    void *data)
+{
+  queue_t q = (queue_t)data;
+  int *e;
+  while (1) {
+    e = (int *)queue_get(q);
+
+    printf("e: %d\n", *e);
+    free(e);
+  }
+}
+
+int main() {
+  int workers = sysconf(_SC_NPROCESSORS_ONLN);
+  int *e;
+  int i;
+  pthread_t *threads = calloc(sizeof(pthread_t), workers);
+
+  if (!threads)
+    err(EX_OSERR, "Cannot allocate memory");
+
+  queue_t q = queue_init(50, workers);
+  if (!q)
+    err(EX_OSERR, "Cannot initialize queue");
+
+  /* Create threads */
+  for (i=0; i < workers; i++) {
+    if (pthread_create(&threads[i], NULL, consume, (void *)q))
+      err(EX_OSERR, "Cannot spawn thread");
+  }
+
+  while (1) {
+    for (i=-0; i < 100; i++) {
+      e = malloc(sizeof(int));
+      *e = i;
+      if (!e)
+        err(EX_OSERR, "Cannot allocate memory for entry");
+  
+      if (queue_put(q, e) == NULL)
+        if (errno == E2BIG)
+          break;
+    }
+    usleep(100000);
+    queue_wait(q);
+  }
+
+  queue_destroy(q);
+  return 0;
+}

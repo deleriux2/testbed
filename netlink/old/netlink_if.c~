@@ -1,0 +1,343 @@
+#include "common.h"
+
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <net/if.h>
+
+#include "timer.h"
+#include "netlink_if.h"
+
+static struct nl_interface {
+    char set;
+    char up;
+    int idx;
+    int mtu;
+    int carrier;
+    int opstate;
+    char name[CACHE_MAXNAME];
+} cache[CACHE_MAX_DEVICES];
+
+
+static struct nl_interface *netlink_cache_get(
+  int idx)
+{
+  int i;
+  for (i=0; i < CACHE_MAX_DEVICES; i++) {
+    if (cache[i].set && cache[i].idx == idx)
+      return &cache[i];
+  }
+  return NULL;
+}
+
+static int netlink_cache_get_next(
+  int idx)
+{
+  int i;
+  int free = -1;
+  /* When the index is known, return this, else
+     return the next free index */
+  for (i=0; i < CACHE_MAX_DEVICES; i++) {
+    if (cache[i].set && cache[i].idx == idx)
+      return i;
+
+    if (free < 0 && cache[i].set == 0)
+      free = i;
+  }
+  return free;
+}
+
+
+static int del_netlink_if_from_cache(
+  struct nlmsghdr *hdr,
+  int buflen)
+{
+  int idx;
+  int num_ifaces = 0;
+  struct ifinfomsg *iface = NULL;
+
+  assert(hdr->nlmsg_type == RTM_DELLINK);
+
+  /* Get each interface and remove from the cache */
+  if (!NLMSG_OK(hdr, hdr->nlmsg_len)) {
+    errno = EINVAL;
+    return -1;
+  }
+
+  iface = NLMSG_DATA(hdr);
+
+  /* This would indicate our pointer math has gone horribly wrong */
+  assert(iface->ifi_index > 0);
+
+  idx = netlink_cache_get_next(iface->ifi_index);
+  if (idx < 0) {
+    errno = E2BIG;
+    return -1;
+  }
+  num_ifaces++;
+  memset(&cache[idx], 0, sizeof(cache[idx]));
+
+  return num_ifaces; 
+}
+
+
+static int add_netlink_if_to_cache(
+  struct nlmsghdr *hdr,
+  int buflen)
+{
+  int idx;
+  int num_ifaces = 0;
+  int rtbuflen;
+  struct ifinfomsg *iface = NULL;
+  struct rtattr *attr = NULL;
+  assert(hdr->nlmsg_type == RTM_NEWLINK);
+
+  /* Get each interface listed and add to our cache */
+  if (!NLMSG_OK(hdr, hdr->nlmsg_len)) {
+    errno = EINVAL;
+    return -1;
+  }
+
+  iface = NLMSG_DATA(hdr);
+
+  /* This would indicate our pointer math has gone horribly wrong */
+  assert(iface->ifi_index > 0);
+
+  idx = netlink_cache_get_next(iface->ifi_index);
+  if (idx < 0) {
+    errno = E2BIG;
+    return -1;
+  }
+
+  cache[idx].set = 1;
+  cache[idx].idx = iface->ifi_index;
+
+  /* Iterate through the attributes, we only care about
+     certain types though */
+  attr = IFLA_RTA(iface);
+  rtbuflen = IFLA_PAYLOAD(hdr);
+  num_ifaces++;
+
+  while (RTA_OK(attr, rtbuflen)) {
+    switch (attr->rta_type) {
+      case IFLA_IFNAME:
+        strncpy(cache[idx].name, RTA_DATA(attr), CACHE_MAXNAME);
+        break;
+
+      case IFLA_MTU:
+        cache[idx].mtu = *((int *)RTA_DATA(attr));
+        break;
+
+      case IFLA_CARRIER:
+        cache[idx].carrier = *((int *)RTA_DATA(attr));
+        break;
+
+      case IFLA_OPERSTATE:
+        cache[idx].opstate = *((int *)RTA_DATA(attr));
+
+      default:
+        break;
+    }
+    attr = RTA_NEXT(attr, rtbuflen);
+  }
+
+  return 1;
+}
+
+
+int netlink_cache_exists(
+  int idx)
+{
+  if (netlink_cache_get(idx))
+    return 1;
+  else
+    return 0;
+}
+
+char *netlink_cache_get_name(
+  int idx)
+{
+  struct nl_interface *link = NULL;
+  if ((link = netlink_cache_get(idx)))
+    return link->name;
+  else
+    return NULL;
+}
+
+int netlink_cache_get_idx_from_name(
+  char *name)
+{
+  int i;
+  char *p = NULL;
+  for (i=0; i < CACHE_MAX_DEVICES; i++) {
+    p = netlink_cache_get_name(i);
+    if (p)
+      if (strcmp(p, name) == 0)
+        return i;
+      else {
+        p = NULL; 
+        continue;
+    }
+  }
+  return -1;
+}
+
+int netlink_cache_get_mtu(
+  int idx)
+{
+  struct nl_interface *link = NULL;
+  if ((link = netlink_cache_get(idx)))
+    return link->mtu;
+  else
+    return -1;
+}
+
+int netlink_cache_get_state(
+  int idx)
+{
+  struct nl_interface *link = NULL;
+  if ((link = netlink_cache_get(idx))) {
+    if (link->carrier == 0) {
+      return 0;
+    }
+    else {
+      if (link->opstate == 0 || link->opstate == 5 || link->opstate == 6) {
+        return 1;
+      }
+    }
+  }
+  else {
+    return -1;
+  }
+}
+
+
+
+int netlink_open(
+  void)
+{
+  int fd = -1;
+  struct sockaddr_nl local = { AF_NETLINK, 0, getpid(), RTMGRP_LINK };
+  int eno;
+
+  fd = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
+  if (fd < 0)
+    goto fail;
+
+  if (bind(fd, (struct sockaddr *)&local, sizeof(local)) < 0)
+    goto fail;
+
+  return fd;
+
+fail:
+  eno = errno;
+  if (fd >=0)
+    close(fd);
+  return -1;
+}
+
+void netlink_close(
+  int fd)
+{
+  if (fd >= 0)
+    close(fd);
+}
+
+
+int netlink_request_interfaces_voidarg(
+  void *data)
+{
+  int fd = *((int *)data);
+  return netlink_request_interfaces(fd);
+}
+
+
+int netlink_request_interfaces(
+  int fd)
+{
+  int len = 0;
+  struct {
+    struct nlmsghdr hdr;
+    struct ifinfomsg iface;
+  } req;
+  memset(&req, 0, sizeof(req));
+
+  req.hdr.nlmsg_len = NLMSG_LENGTH(sizeof(req.iface));
+  req.hdr.nlmsg_type = RTM_GETLINK;
+  req.hdr.nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST;
+  req.hdr.nlmsg_seq = 0;
+  req.hdr.nlmsg_pid = getpid();
+  req.iface.ifi_change = 0xFFFFFFFF;
+
+  len = send(fd, &req, sizeof(req), 0);
+  return len;
+}
+
+
+
+void netlink_init(void)
+{
+  memset(cache, 0, sizeof(cache));
+}
+
+
+
+int netlink_recv(
+  void *data)
+{
+  int fd = *((int *)data);
+  struct nlmsghdr *hdr = NULL;
+  int msglen = 0, tmp;
+  char buf[4096];
+  memset(buf, 0, sizeof(buf));
+
+
+  if ((msglen = recv(fd, buf, sizeof(buf), 0)) < 0)
+    goto fail;
+  tmp = msglen;
+
+
+  hdr = (struct nlmsghdr *)buf;
+  while (NLMSG_OK(hdr, tmp)) {
+
+    /* This problem occurs where between netlink messages the device layout has altered */
+    if (hdr->nlmsg_flags & NLM_F_DUMP_INTR) {
+      if (timer_add(200, netlink_request_interfaces_voidarg, &fd, sizeof(fd), 1) < 0) {
+        fprintf(stderr, "Attempting to reschedule a netlink request "
+                        "due to inconsistency failed!\n");
+      }
+      else {
+        fprintf(stderr, "WARNING: Tables reported as inconsistent, "
+                        "rescheduling a check in 2 seconds\n");
+      }
+      return 0;
+    }
+
+    /* Determine what the message type is */
+    switch (hdr->nlmsg_type) {
+    case RTM_NEWLINK:
+      add_netlink_if_to_cache(hdr, msglen);
+      break;
+
+    case RTM_DELLINK:
+      del_netlink_if_from_cache(hdr, msglen);
+      break;  
+
+    case NLMSG_DONE:
+      return 0;
+      break;
+
+    default:
+      /* Unhandled state */
+      break;
+    }
+    hdr = NLMSG_NEXT(hdr, tmp);
+  }
+  return msglen;
+
+fail:
+  return -1;
+}
+
+

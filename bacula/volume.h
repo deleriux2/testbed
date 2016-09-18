@@ -1,0 +1,53 @@
+#ifndef _VOLUME_H
+#define _VOLUME_H
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <limits.h>
+
+#define BLOCK_HDR_SZ 24
+#define RECORD_HDR_SZ 12
+
+typedef struct block {
+	uint32_t checksum;
+	uint32_t number;
+	uint32_t length;
+	char id[5];
+	uint32_t vol_sessionid;
+	uint32_t vol_sessiontime;
+  off_t offset;
+	void *data;
+} block_t;
+
+
+typedef struct record {
+  int32_t fileindex;
+  int32_t stream;
+  int32_t length;
+  void *data;
+} record_t;
+
+typedef struct volume {
+  int fd;
+	size_t size;
+  char name[NAME_MAX];
+  char path[PATH_MAX];
+	off_t offset;
+	block_t block;
+  record_t record;
+} volume_t;
+
+volume_t * volume_open(const char *filename);
+int volume_close(volume_t *vol);
+int volume_reopen(volume_t *vol);
+int block_read(volume_t *vol);
+int record_get(volume_t *vol);
+
+#endif

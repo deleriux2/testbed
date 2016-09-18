@@ -1,0 +1,99 @@
+#include "common.h"
+#include "ndmp_common.h"
+#include "mover.h"
+
+#include <signal.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+bool ndmp_mover_create(
+      ndmp_session *sess,
+      char *host,
+      char *port)
+{
+   assert(sess);
+   assert(host);
+   assert(port);
+
+   int rc;
+   int yes = 1;
+
+   struct addrinfo *ai, hints;
+   memset(&hints, 0, sizeof(hints));
+
+   /* Create the state data */
+   mover_state *state = NULL;
+   state = malloc(sizeof(*state));
+   ON_FALSE(fail, state != NULL);
+   memset(state, 0, sizeof(*state));
+
+   /* Create listening socket */
+   hints.ai_flags = AI_PASSIVE;
+   rc = getaddrinfo(host, port, &hints, &ai);
+
+   ON_FALSE(fail, rc == 0);
+
+   state->fd = socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
+   ON_FALSE(fail, state->fd > -1);
+   ON_FALSE(fail, setsockopt(state->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) > -1);
+   ON_FALSE(fail, bind(state->fd, ai->ai_addr, ai->ai_addrlen) > -1);
+   ON_FALSE(fail, listen(state->fd, 1) > -1);
+
+   freeaddrinfo(ai);
+   sess->mover = state;
+   return true;
+   
+fail:
+   if (ai)
+      freeaddrinfo(ai);
+
+   if (state) {
+      shutdown(state->fd, SHUT_RDWR);
+      close(state->fd);
+      munmap(state, sizeof(*state));
+      mover->state = NULL;
+   }
+   return false;
+}
+
+
+void ndmp_mover_destroy(
+      ndmp_session *sess)
+{
+   if (!sess) return;
+        if (!sess->mover) return;
+
+   if (sess->mover > -1) {
+     shutdown(state->fd, SHUT_RDWR);
+     close(sess->mover->fd);
+   }
+
+   free(sess->mover);
+        sess->mover = NULL;
+   return;   
+}
+
+
+bool ndmp_mover_read(
+      ndmp_session *sess)
+{
+   assert(sess);
+   assert(sess->data);
+
+        mover_state *state = (mover_state *)sess->data;
+   char buf[8192];
+   memset(buf, 0, 8192);
+   int rc = -1;
+   int clifd = -1;
+
+   /* Read the contents of the data, at the moment, 
+    * dont save or so anyting particular with it    */
+   ON_FALSE(fail, (rc = read(clifd, buf, 8192)) > 0);
+   printf("Read %d bytes on %d\n", rc, clifd);
+
+   return true;
+fail:
+   close(clifd);
+   _LOG(ERROR, "Failed to read data: %s\n", strerror(errno));
+   return false;
+}

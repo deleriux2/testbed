@@ -1,0 +1,1358 @@
+==26278== Memcheck, a memory error detector
+==26278== Copyright (C) 2002-2012, and GNU GPL'd, by Julian Seward et al.
+==26278== Using Valgrind-3.8.1 and LibVEX; rerun with -h for copyright info
+==26278== Command: ./data_server
+==26278== Parent PID: 12639
+==26278== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x406A38: xdr_ndmp_header (ndmp_xdr.c:169)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406A38: xdr_ndmp_header (ndmp_xdr.c:169)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406A38: xdr_ndmp_header (ndmp_xdr.c:169)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x406A38: xdr_ndmp_header (ndmp_xdr.c:169)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf34 is 4 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x406A5D: xdr_ndmp_header (ndmp_xdr.c:171)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406A5D: xdr_ndmp_header (ndmp_xdr.c:171)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406A5D: xdr_ndmp_header (ndmp_xdr.c:171)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x406A5D: xdr_ndmp_header (ndmp_xdr.c:171)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf38 is 8 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4066BA: xdr_ndmp_header_message_type (ndmp_xdr.c:13)
+==26281==    by 0x406A82: xdr_ndmp_header (ndmp_xdr.c:173)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4066BA: xdr_ndmp_header_message_type (ndmp_xdr.c:13)
+==26281==    by 0x406A82: xdr_ndmp_header (ndmp_xdr.c:173)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4066BA: xdr_ndmp_header_message_type (ndmp_xdr.c:13)
+==26281==    by 0x406A82: xdr_ndmp_header (ndmp_xdr.c:173)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4066BA: xdr_ndmp_header_message_type (ndmp_xdr.c:13)
+==26281==    by 0x406A82: xdr_ndmp_header (ndmp_xdr.c:173)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf3c is 12 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067DC: xdr_ndmp_message (ndmp_xdr.c:57)
+==26281==    by 0x406AA4: xdr_ndmp_header (ndmp_xdr.c:175)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067DC: xdr_ndmp_message (ndmp_xdr.c:57)
+==26281==    by 0x406AA4: xdr_ndmp_header (ndmp_xdr.c:175)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067DC: xdr_ndmp_message (ndmp_xdr.c:57)
+==26281==    by 0x406AA4: xdr_ndmp_header (ndmp_xdr.c:175)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067DC: xdr_ndmp_message (ndmp_xdr.c:57)
+==26281==    by 0x406AA4: xdr_ndmp_header (ndmp_xdr.c:175)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf40 is 16 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x406AC6: xdr_ndmp_header (ndmp_xdr.c:177)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406AC6: xdr_ndmp_header (ndmp_xdr.c:177)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x406AC6: xdr_ndmp_header (ndmp_xdr.c:177)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x406AC6: xdr_ndmp_header (ndmp_xdr.c:177)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf44 is 20 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067A7: xdr_ndmp_error (ndmp_xdr.c:47)
+==26281==    by 0x406AE8: xdr_ndmp_header (ndmp_xdr.c:179)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067A7: xdr_ndmp_error (ndmp_xdr.c:47)
+==26281==    by 0x406AE8: xdr_ndmp_header (ndmp_xdr.c:179)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067A7: xdr_ndmp_error (ndmp_xdr.c:47)
+==26281==    by 0x406AE8: xdr_ndmp_header (ndmp_xdr.c:179)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x4067A7: xdr_ndmp_error (ndmp_xdr.c:47)
+==26281==    by 0x406AE8: xdr_ndmp_header (ndmp_xdr.c:179)
+==26281==    by 0x40635D: ndmp_header_send (ndmp_header.c:88)
+==26281==    by 0x403881: ndmp_send_notify_connection_status (ndmp_connect.c:105)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf48 is 24 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x406811: xdr_ndmp_connection_status_reason (ndmp_xdr.c:67)
+==26281==    by 0x406B1D: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:189)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x406811: xdr_ndmp_connection_status_reason (ndmp_xdr.c:67)
+==26281==    by 0x406B1D: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:189)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x406811: xdr_ndmp_connection_status_reason (ndmp_xdr.c:67)
+==26281==    by 0x406B1D: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:189)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F6F3: xdr_int (xdr.c:104)
+==26281==    by 0x406811: xdr_ndmp_connection_status_reason (ndmp_xdr.c:67)
+==26281==    by 0x406B1D: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:189)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf4c is 28 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F9A3: xdr_u_short (xdr.c:301)
+==26281==    by 0x406B3F: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:191)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F9A3: xdr_u_short (xdr.c:301)
+==26281==    by 0x406B3F: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:191)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F9A3: xdr_u_short (xdr.c:301)
+==26281==    by 0x406B3F: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:191)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F9A3: xdr_u_short (xdr.c:301)
+==26281==    by 0x406B3F: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:191)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf50 is 32 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50525: xdrrec_putlong (xdr_rec.c:253)
+==26281==    by 0x4C4F762: xdr_u_int (xdr.c:134)
+==26281==    by 0x4C4FEFC: xdr_string (xdr.c:678)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5052D: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F762: xdr_u_int (xdr.c:134)
+==26281==    by 0x4C4FEFC: xdr_string (xdr.c:678)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50531: xdrrec_putlong (xdr_rec.c:255)
+==26281==    by 0x4C4F762: xdr_u_int (xdr.c:134)
+==26281==    by 0x4C4FEFC: xdr_string (xdr.c:678)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C5053C: xdrrec_putlong (xdr_rec.c:267)
+==26281==    by 0x4C4F762: xdr_u_int (xdr.c:134)
+==26281==    by 0x4C4FEFC: xdr_string (xdr.c:678)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf54 is 36 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5049D: xdrrec_putbytes (xdr_rec.c:310)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504A1: xdrrec_putbytes (xdr_rec.c:309)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4A09FC3: memcpy@GLIBC_2.2.5 (mc_replace_strmem.c:880)
+==26281==    by 0x4C504C2: xdrrec_putbytes (string3.h:58)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf58 is 40 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 2
+==26281==    at 0x4A0A00B: memcpy@GLIBC_2.2.5 (mc_replace_strmem.c:880)
+==26281==    by 0x4C504C2: xdrrec_putbytes (string3.h:58)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf80 is 80 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 1
+==26281==    at 0x4A0A034: memcpy@GLIBC_2.2.5 (mc_replace_strmem.c:880)
+==26281==    by 0x4C504C2: xdrrec_putbytes (string3.h:58)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf82 is 82 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504C3: xdrrec_putbytes (xdr_rec.c:313)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504CA: xdrrec_putbytes (xdr_rec.c:316)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C504CE: xdrrec_putbytes (xdr_rec.c:313)
+==26281==    by 0x4C4FC09: xdr_opaque (xdr.c:506)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5049D: xdrrec_putbytes (xdr_rec.c:310)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504A1: xdrrec_putbytes (xdr_rec.c:309)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 1
+==26281==    at 0x4A0A142: memcpy@GLIBC_2.2.5 (mc_replace_strmem.c:880)
+==26281==    by 0x4C504C2: xdrrec_putbytes (string3.h:58)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf83 is 83 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504C3: xdrrec_putbytes (xdr_rec.c:313)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C504CA: xdrrec_putbytes (xdr_rec.c:316)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce70 is 32 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C504CE: xdrrec_putbytes (xdr_rec.c:313)
+==26281==    by 0x4C4FF85: xdr_string (xdr.c:709)
+==26281==    by 0x406B66: xdr_ndmp_notify_connection_status_post (ndmp_xdr.c:193)
+==26281==    by 0x4038C3: ndmp_send_notify_connection_status (ndmp_connect.c:112)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C50AA8: xdrrec_endofrecord (xdr_rec.c:513)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce80 is 48 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50419: flush_out (xdr_rec.c:628)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5041D: flush_out (xdr_rec.c:629)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce78 is 40 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5042F: flush_out (xdr_rec.c:633)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce60 is 16 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50433: flush_out (xdr_rec.c:634)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce50 is 0 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4C50438: flush_out (xdr_rec.c:631)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf30 is 0 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5043F: flush_out (xdr_rec.c:634)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce58 is 8 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Syscall param socketcall.sendto(msg) points to unaddressable byte(s)
+==26281==    at 0x3281EF26AD: send (send.c:28)
+==26281==    by 0x4024AA: _ndmp_write (ndmp_common.c:96)
+==26281==    by 0x4C50441: flush_out (xdr_rec.c:634)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf30 is 0 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50458: flush_out (xdr_rec.c:637)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce60 is 16 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C5045C: flush_out (xdr_rec.c:637)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce78 is 40 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4C50464: flush_out (xdr_rec.c:638)
+==26281==    by 0x4038DC: ndmp_send_notify_connection_status (ndmp_connect.c:116)
+==26281==    by 0x4036A2: ndmp_disconnect (ndmp_connect.c:53)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce68 is 24 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4022A7: ndmp_free_session (ndmp_common.c:56)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c780 is 160 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4022CA: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c718 is 56 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4022DB: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c718 is 56 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50321: xdrrec_destroy (xdr_rec.c:426)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c728 is 72 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C50325: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce60 is 16 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid free() / delete / delete[] / realloc()
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506cf30 is 0 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C5032D: xdrrec_destroy (xdr_rec.c:428)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 8
+==26281==    at 0x4C5032E: xdrrec_destroy (xdr_rec.c:429)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce98 is 72 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid free() / delete / delete[] / realloc()
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C50336: xdrrec_destroy (xdr_rec.c:429)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506df10 is 0 bytes inside a block of size 4,000 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4C50336: xdrrec_destroy (xdr_rec.c:429)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid free() / delete / delete[] / realloc()
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506ce50 is 0 bytes inside a block of size 152 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x4022EF: ndmp_free_session (ndmp_common.c:58)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 1
+==26281==    at 0x403685: ndmp_disconnect (ndmp_connect.c:52)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c704 is 36 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x4036A7: ndmp_disconnect (ndmp_connect.c:57)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6f0 is 16 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x4036BA: ndmp_disconnect (ndmp_connect.c:58)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e8 is 8 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x4036E8: ndmp_disconnect (ndmp_connect.c:62)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6ec is 12 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x403716: ndmp_disconnect (ndmp_connect.c:66)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e4 is 4 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x403744: ndmp_disconnect (ndmp_connect.c:70)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6f4 is 20 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x40375D: ndmp_disconnect (ndmp_connect.c:73)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6f0 is 16 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Warning: invalid file descriptor -1 in syscall close()
+==26281== Invalid read of size 4
+==26281==    at 0x40376B: ndmp_disconnect (ndmp_connect.c:74)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e0 is 0 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Warning: invalid file descriptor -1 in syscall close()
+==26281== Invalid write of size 1
+==26281==    at 0x403778: ndmp_disconnect (ndmp_connect.c:75)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c704 is 36 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 1
+==26281==    at 0x403780: ndmp_disconnect (ndmp_connect.c:76)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c705 is 37 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x403788: ndmp_disconnect (ndmp_connect.c:77)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6f0 is 16 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x403793: ndmp_disconnect (ndmp_connect.c:78)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e4 is 4 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x40379E: ndmp_disconnect (ndmp_connect.c:79)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e8 is 8 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037A9: ndmp_disconnect (ndmp_connect.c:80)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6ec is 12 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037B4: ndmp_disconnect (ndmp_connect.c:81)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e0 is 0 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037BE: ndmp_disconnect (ndmp_connect.c:82)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6f4 is 20 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037C9: ndmp_disconnect (ndmp_connect.c:83)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c740 is 96 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4037D4: ndmp_disconnect (ndmp_connect.c:84)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c748 is 104 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 8
+==26281==    at 0x4037E0: ndmp_disconnect (ndmp_connect.c:85)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c750 is 112 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037EC: ndmp_disconnect (ndmp_connect.c:86)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c76c is 140 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x4037FA: ndmp_disconnect (ndmp_connect.c:87)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c768 is 136 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid write of size 4
+==26281==    at 0x403808: ndmp_disconnect (ndmp_connect.c:88)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c770 is 144 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid read of size 4
+==26281==    at 0x403816: ndmp_disconnect (ndmp_connect.c:89)
+==26281==    by 0x4022FB: ndmp_free_session (ndmp_common.c:59)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c700 is 32 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== Invalid free() / delete / delete[] / realloc()
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401CB2: setup_dma_server (data_server.c:34)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281==  Address 0x506c6e0 is 0 bytes inside a block of size 1,832 free'd
+==26281==    at 0x4A07786: free (vg_replace_malloc.c:446)
+==26281==    by 0x402307: ndmp_free_session (ndmp_common.c:60)
+==26281==    by 0x401C9B: setup_dma_server (data_server.c:31)
+==26281==    by 0x401FB9: main (data_server.c:78)
+==26281== 
+==26281== 
+==26281== HEAP SUMMARY:
+==26281==     in use at exit: 168 bytes in 1 blocks
+==26281==   total heap usage: 172 allocs, 175 frees, 35,392 bytes allocated
+==26281== 
+==26281== LEAK SUMMARY:
+==26281==    definitely lost: 0 bytes in 0 blocks
+==26281==    indirectly lost: 0 bytes in 0 blocks
+==26281==      possibly lost: 0 bytes in 0 blocks
+==26281==    still reachable: 168 bytes in 1 blocks
+==26281==         suppressed: 0 bytes in 0 blocks
+==26281== Reachable blocks (those to which a pointer was found) are not shown.
+==26281== To see them, rerun with: --leak-check=full --show-reachable=yes
+==26281== 
+==26281== For counts of detected and suppressed errors, rerun with: -v
+==26281== ERROR SUMMARY: 98 errors from 94 contexts (suppressed: 2 from 2)
+==26278== 
+==26278== HEAP SUMMARY:
+==26278==     in use at exit: 168 bytes in 1 blocks
+==26278==   total heap usage: 8 allocs, 7 frees, 1,156 bytes allocated
+==26278== 
+==26278== LEAK SUMMARY:
+==26278==    definitely lost: 0 bytes in 0 blocks
+==26278==    indirectly lost: 0 bytes in 0 blocks
+==26278==      possibly lost: 0 bytes in 0 blocks
+==26278==    still reachable: 168 bytes in 1 blocks
+==26278==         suppressed: 0 bytes in 0 blocks
+==26278== Reachable blocks (those to which a pointer was found) are not shown.
+==26278== To see them, rerun with: --leak-check=full --show-reachable=yes
+==26278== 
+==26278== For counts of detected and suppressed errors, rerun with: -v
+==26278== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2 from 2)
